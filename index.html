@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Soccer Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans pb-20">
+
+    <!-- Header -->
+    <header class="bg-green-600 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight">CITY UNITED SC</h1>
+            <i class="fas fa-bars text-xl"></i>
+        </div>
+    </header>
+
+    <!-- App-like Hero Section -->
+    <main class="p-4 space-y-6">
+        
+        <!-- Welcome Video Placeholder -->
+        <div class="rounded-2xl overflow-hidden shadow-md bg-black aspect-video flex items-center justify-center text-gray-500">
+            <i class="fas fa-play-circle text-5xl text-white opacity-80"></i>
+        </div>
+
+        <!-- Next Game RSVP Card (The Popup-style Highlight) -->
+        <div id="rsvp-card" class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
+            <h2 class="text-sm font-bold text-green-600 uppercase">Next Match</h2>
+            <div class="flex justify-between items-end mt-2">
+                <div>
+                    <p class="text-2xl font-bold text-gray-800" id="game-date">Saturday, Oct 12</p>
+                    <p class="text-gray-500"><i class="fas fa-map-marker-alt"></i> Indoor Arena - 10:00 AM</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <button onclick="submitRSVP('In')" class="bg-green-500 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">I'm IN ✅</button>
+                <button onclick="submitRSVP('Out')" class="bg-gray-200 text-gray-700 py-3 rounded-xl font-bold active:scale-95 transition-transform">I'm OUT ❌</button>
+            </div>
+        </div>
+
+        <!-- League Standings Quick View -->
+        <section>
+            <h3 class="text-lg font-bold mb-3 px-1">League Table</h3>
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden text-sm">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="p-3">Team</th>
+                            <th class="p-3 text-center">GP</th>
+                            <th class="p-3 text-center">PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">Team Tigers</td>
+                            <td class="p-3 text-center">5</td>
+                            <td class="p-3 text-center font-bold text-green-600">12</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-medium">Lions FC</td>
+                            <td class="p-3 text-center">5</td>
+                            <td class="p-3 text-center font-bold text-green-600">10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation (Mobile App Style) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 text-gray-400">
+        <div class="flex flex-col items-center text-green-600">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] mt-1">Home</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <i class="fas fa-calendar-alt text-xl"></i>
+            <span class="text-[10px] mt-1">Schedule</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <i class="fas fa-chart-line text-xl"></i>
+            <span class="text-[10px] mt-1">Stats</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <i class="fas fa-user-shield text-xl"></i>
+            <span class="text-[10px] mt-1">Admin</span>
+        </div>
+    </nav>
+
+    <script>
+        const SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+
+        async function submitRSVP(status) {
+            const email = prompt("Please enter your registered email:");
+            if (!email) return;
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    gameId: 'G001', // This should be dynamic based on your schedule
+                    email: email,
+                    status: status
+                })
+            });
+
+            const result = await response.json();
+            if(result.result === "success") {
+                alert("RSVP Recorded! See you on the pitch.");
+            }
+        }
+    </script>
+</body>
+</html>
