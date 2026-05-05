@@ -366,158 +366,303 @@
     </nav>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiYa0EUGqu2R8y5sHvz5NoWDLUEwchf1nGaquano9mhx2MexBRwd3ekF4GzjTVAS3-/exec'; 
-        let allPlayersData = []; 
-        let currentStream = 'Wed';
-        let currentSlide = 0;
+    // --- CONFIGURATION & GLOBALS ---
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiYa0EUGqu2R8y5sHvz5NoWDLUEwchf1nGaquano9mhx2MexBRwd3ekF4GzjTVAS3-/exec'; 
+    let allPlayersData = []; 
+    let currentStream = 'Wed';
+    let currentSlide = 0;
     const totalSlides = 3;
 
+    // --- AUTOMATIC INITIALIZATION (The "Frozen" Fix) ---
+    // This runs as soon as the window loads so data is ready immediately
+    window.onload = function() {
+        loadSchedule();     // Pulls the RSVP card data for Home
+        loadTeamsData();    // Pre-loads team rosters in background
+        console.log("Alena Legacy Engine Started...");
+    };
+
+    // --- GALLERY LOGIC ---
     function rotateGallery() {
         const sCurrent = document.getElementById(`slide-${currentSlide}`);
         const dCurrent = document.getElementById(`dot-${currentSlide}`);
         if(!sCurrent || !dCurrent) return;
 
+        // Fade Out Current
         sCurrent.classList.replace('opacity-100', 'opacity-0');
         dCurrent.classList.replace('w-4', 'w-1');
         dCurrent.classList.replace('bg-green-700', 'bg-gray-300');
 
         currentSlide = (currentSlide + 1) % totalSlides;
 
+        // Fade In Next
         const sNext = document.getElementById(`slide-${currentSlide}`);
         const dNext = document.getElementById(`dot-${currentSlide}`);
         
-        sNext.classList.replace('opacity-0', 'opacity-100');
-        dNext.classList.replace('w-1', 'w-4');
-        dNext.classList.replace('bg-gray-300', 'bg-green-700');
+        if(sNext && dNext) {
+            sNext.classList.replace('opacity-0', 'opacity-100');
+            dNext.classList.replace('w-1', 'w-4');
+            dNext.classList.replace('bg-gray-300', 'bg-green-700');
+        }
     }
-    setInterval(rotateGallery, 4000);
-        function toggleMenu() { document.getElementById('side-menu').classList.toggle('hidden'); }
+    setInterval(rotateGallery, 4500);
 
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(pageId);
-            if (targetPage) targetPage.classList.add('active');
+    // --- NAVIGATION LOGIC ---
+    function toggleMenu() { 
+        document.getElementById('side-menu').classList.toggle('hidden'); 
+    }
 
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-green-700'); btn.classList.add('text-gray-400');
-            });
-            const activeBtn = document.getElementById('btn-' + pageId);
-            if(activeBtn) { activeBtn.classList.remove('text-gray-400'); activeBtn.classList.add('text-green-700'); }
-            
-            document.getElementById('side-menu').classList.add('hidden');
-            window.scrollTo(0, 0);
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) targetPage.classList.add('active');
 
-            if(pageId === 'home' || pageId === 'schedule') loadSchedule();
-            if(pageId === 'teams') loadTeamsData();
-            if(pageId === 'stats') loadStats();
-            if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
+        // Update Bottom Nav UI
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('text-green-700'); btn.classList.add('text-gray-400');
+        });
+        const activeBtn = document.getElementById('btn-' + pageId);
+        if(activeBtn) { 
+            activeBtn.classList.remove('text-gray-400'); 
+            activeBtn.classList.add('text-green-700'); 
         }
+        
+        document.getElementById('side-menu').classList.add('hidden');
+        window.scrollTo(0, 0);
 
-        function getDynamicTeamColor(teamName, jerseyString) {
-            if (!teamName || !jerseyString) return 'text-gray-900';
-            const name = teamName.trim().toUpperCase();
-            const jerseyText = jerseyString.toUpperCase();
-            const teamLetter = name.replace('TEAM', '').trim(); 
-            const segments = jerseyText.split('|');
-            for (let segment of segments) {
-                if (new RegExp(`\\b${teamLetter}\\b`).test(segment)) {
-                    if (segment.includes('BLUE')) return 'text-blue-600';
-                    if (segment.includes('YELLOW')) return 'text-yellow-500';
-                }
+        // Conditional Auto-Loading
+        if(pageId === 'home' || pageId === 'schedule') loadSchedule();
+        if(pageId === 'teams') renderTeams(); // Uses pre-loaded data
+        if(pageId === 'stats') loadStats();
+        if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
+    }
+
+    // --- DATA FORMATTING HELPERS ---
+    function formatSafe(val) {
+        if (!val) return 'TBA';
+        let d = new Date(val);
+        if (isNaN(d.getTime())) return val.toString().trim();
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
+    }
+
+    function formatTime(val) {
+        if (!val) return 'TBA';
+        let d = new Date(val);
+        if (isNaN(d.getTime())) return val;
+        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    }
+
+    function getDynamicTeamColor(teamName, jerseyString) {
+        if (!teamName || !jerseyString) return 'text-gray-900';
+        const name = teamName.trim().toUpperCase();
+        const jerseyText = jerseyString.toUpperCase();
+        const teamLetter = name.replace('TEAM', '').trim(); 
+        const segments = jerseyText.split('|');
+        for (let segment of segments) {
+            if (new RegExp(`\\b${teamLetter}\\b`).test(segment)) {
+                if (segment.includes('BLUE')) return 'text-blue-600';
+                if (segment.includes('YELLOW')) return 'text-yellow-500';
+                if (segment.includes('GREEN')) return 'text-green-600';
+                if (segment.includes('WHITE')) return 'text-gray-400';
             }
-            return 'text-gray-900';
         }
+        return 'text-gray-900';
+    }
 
-        function formatSafe(val) {
-            if (!val) return 'TBA';
-            let d = new Date(val);
-            if (isNaN(d.getTime())) return val.toString().trim();
-            return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
-        }
+    // --- CORE DATA FUNCTIONS ---
+    async function loadSchedule() {
+        const container = document.getElementById('schedule-container');
+        const homeMatchups = document.getElementById('next-game-matchups');
+        const homeDate = document.getElementById('next-game-date');
+        
+        // Visual feedback that syncing is happening
+        if(homeDate && homeDate.innerText === "Loading...") homeDate.innerText = "Syncing...";
 
-        function formatTime(val) {
-            if (!val) return 'TBA';
-            let d = new Date(val);
-            if (isNaN(d.getTime())) return val;
-            return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-        }
-
-        async function loadSchedule() {
-            const container = document.getElementById('schedule-container');
-            const homeMatchups = document.getElementById('next-game-matchups');
-            if(container) container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=getGames`);
-                const games = await res.json();
-                if(games && games.length > 0) {
-                    const now = new Date(); now.setHours(0, 0, 0, 0);
-                    let nextGame = games.find(g => new Date(g.date) >= now);
-                    if(nextGame) {
-                        const jerseyInfo = nextGame.jersey || "";
-                        document.getElementById('next-game-date').innerText = formatSafe(nextGame.date);
-                        document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} • ${nextGame.location || 'Winnipeg Pitch'}`;
-                        document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt text-green-700"></i> Colors: ${jerseyInfo || 'TBA'}`;
-                        const matches = (nextGame.matchup || "TBA vs TBA").split(' | ');
-                        homeMatchups.innerHTML = matches.map(m => {
-                            const p = m.split(' vs ');
-                            const t1 = p[0]?.trim() || 'TBA'; const t2 = p[1]?.trim() || 'TBA';
-                            return `<div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100">
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getGames`);
+            const games = await res.json();
+            
+            if(games && games.length > 0) {
+                const now = new Date(); now.setHours(0, 0, 0, 0);
+                let nextGame = games.find(g => new Date(g.date) >= now);
+                
+                // Update Home Page Card
+                if(nextGame && homeDate) {
+                    const jerseyInfo = nextGame.jersey || "";
+                    homeDate.innerText = formatSafe(nextGame.date);
+                    document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} • ${nextGame.location || 'Winnipeg Pitch'}`;
+                    document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt text-green-700"></i> Colors: ${jerseyInfo || 'TBA'}`;
+                    
+                    const matches = (nextGame.matchup || "TBA vs TBA").split(' | ');
+                    homeMatchups.innerHTML = matches.map(m => {
+                        const p = m.split(' vs ');
+                        const t1 = p[0]?.trim() || 'TBA'; 
+                        const t2 = p[1]?.trim() || 'TBA';
+                        return `
+                            <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100">
                                 <span class="font-black text-xs uppercase ${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
                                 <span class="text-[8px] font-black text-gray-300 italic">VS</span>
                                 <span class="font-black text-xs uppercase ${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
                             </div>`;
-                        }).join('');
-                    }
-                    if(container) {
-                        container.innerHTML = games.map(g => {
-                            const jerseyInfo = g.jersey || "";
-                            const teams = (g.matchup || "TBA vs TBA").split(' | ');
-                            return `<div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50">
+                    }).join('');
+                }
+
+                // Update Schedule Page Full List
+                if(container) {
+                    container.innerHTML = games.map(g => {
+                        const jerseyInfo = g.jersey || "";
+                        const teams = (g.matchup || "TBA vs TBA").split(' | ');
+                        return `
+                            <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-50 mb-4">
                                 <div class="flex justify-between items-start mb-4">
-                                    <div><p class="text-xl font-black text-gray-900">${formatSafe(g.date)}</p><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${g.location || 'TBA'}</p></div>
+                                    <div>
+                                        <p class="text-xl font-black text-gray-900">${formatSafe(g.date)}</p>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${g.location || 'TBA'}</p>
+                                    </div>
                                     <span class="bg-green-50 text-green-700 px-3 py-1 rounded-full text-[10px] font-black">${formatTime(g.time)}</span>
                                 </div>
-                                <div class="space-y-2">${teams.map(t => {
-                                    const p = t.split(' vs ');
-                                    const t1 = p[0]?.trim() || 'TBA'; const t2 = p[1]?.trim() || 'TBA';
-                                    return `<div class="bg-gray-50 rounded-xl p-3 flex justify-around items-center text-[10px] font-black uppercase">
-                                        <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span><span class="text-gray-300">VS</span><span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
-                                    </div>`;
-                                }).join('')}</div>
-                            </div>`}).join('');
-                    }
+                                <div class="space-y-2">
+                                    ${teams.map(t => {
+                                        const p = t.split(' vs ');
+                                        const t1 = p[0]?.trim() || 'TBA'; const t2 = p[1]?.trim() || 'TBA';
+                                        return `<div class="bg-gray-50 rounded-xl p-3 flex justify-around items-center text-[10px] font-black uppercase">
+                                            <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
+                                            <span class="text-gray-300">VS</span>
+                                            <span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
+                                        </div>`;
+                                    }).join('')}
+                                </div>
+                            </div>`;
+                    }).join('');
                 }
-            } catch(e) { console.error(e); }
+            }
+        } catch(e) { 
+            console.error("Schedule Error:", e); 
+            if(homeDate) homeDate.innerText = "Check Connection";
         }
+    }
 
-        async function submitRSVP(status) {
-            const gameDate = document.getElementById('next-game-date').innerText;
-            if(gameDate === "Loading...") return;
-            const email = prompt("Enter your registered email:");
-            if(!email) return;
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'submitRSVP', email: email.toLowerCase().trim(), status: status, gameDate: gameDate }) });
-                alert("RSVP Recorded Successfully");
-            } catch (e) { alert("Failed to record RSVP."); }
+    async function submitRSVP(status) {
+        const gameDate = document.getElementById('next-game-date').innerText;
+        if(gameDate.includes("Loading") || gameDate.includes("Syncing")) return;
+        
+        const email = prompt("Enter your registered email:");
+        if(!email) return;
+        
+        try {
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify({ 
+                    action: 'submitRSVP', 
+                    email: email.toLowerCase().trim(), 
+                    status: status, 
+                    gameDate: gameDate 
+                }) 
+            });
+            alert("RSVP Recorded Successfully for " + gameDate);
+        } catch (e) { 
+            alert("Failed to record RSVP."); 
         }
+    }
 
-        async function loadRoster() {
-            const container = document.getElementById('roster-container');
-            const adminLabel = document.getElementById('admin-game-label');
-            container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
-            try {
-                const [gRes, pRes, rRes] = await Promise.all([ fetch(`${SCRIPT_URL}?action=getGames`), fetch(`${SCRIPT_URL}?action=getPlayers`), fetch(`${SCRIPT_URL}?action=getRSVPs`) ]);
-                const games = await gRes.json(); const players = await pRes.json(); const rsvps = await rRes.json();
-                const now = new Date(); now.setHours(0,0,0,0);
-                const nextGame = games.find(g => new Date(g.date) >= now);
-                if(!nextGame) return;
-                const targetDate = formatSafe(nextGame.date).toLowerCase().trim();
-                adminLabel.innerText = `NEXT: ${formatSafe(nextGame.date)}`;
-                
-                const teamNames = ["Team A", "Team B", "Team C", "Team D"];
-                container.innerHTML = teamNames.map(team => {
-                    const teamPlayers = players.filter(p => (p['team wed'] === team || p['team sat'] === team));
-                    return `<div class="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-4">
+    async function loadTeamsData() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getPlayers`);
+            allPlayersData = await res.json(); 
+            // If user is currently on teams page, render it
+            if(document.getElementById('teams').classList.contains('active')) renderTeams();
+        } catch(e) { console.error("Teams Load Error:", e); }
+    }
+
+    function renderTeams() {
+        const filter = document.getElementById('team-filter').value;
+        const container = document.getElementById('teams-grid');
+        if(!container) return;
+
+        const teamNames = ["Team A", "Team B", "Team C", "Team D"];
+        const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
+        const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
+        
+        container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
+            const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName && (p.stream === dayMatch || p.stream === 'Both'));
+            return `
+                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-50 overflow-hidden mb-4">
+                    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-50">
+                        <span class="font-black text-xs uppercase italic tracking-widest">${teamName}</span>
+                    </div>
+                    <div class="p-2 space-y-1">
+                        ${teamPlayers.length > 0 ? teamPlayers.map(p => `
+                            <div class="px-4 py-3 flex items-center justify-between">
+                                <p class="font-bold text-sm text-gray-800">${p.name || p.Name}</p>
+                            </div>`).join('') : '<p class="p-4 text-gray-400 text-xs italic">No players assigned</p>'}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function setStream(stream) {
+        currentStream = stream;
+        document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all" : "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
+        document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all" : "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
+        renderTeams();
+    }
+
+    async function loadStats() {
+        const container = document.getElementById('stats-container');
+        if(!container) return;
+        container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getStats`);
+            let stats = await res.json();
+            stats.sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
+            container.innerHTML = stats.map((s, i) => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-50 mb-2">
+                    <div class="flex items-center gap-4">
+                        <span class="text-xs font-black text-gray-300">#${i+1}</span>
+                        <span class="font-bold">${s.name}</span>
+                    </div>
+                    <span class="bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-black">${s.goals} G</span>
+                </div>`).join('');
+        } catch(e) { console.error(e); }
+    }
+
+    // --- ADMIN LOGIC ---
+    function checkAdmin() {
+        if(document.getElementById('admin-pass').value === 'ALENA2024') {
+            document.getElementById('admin-login-view').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            loadRoster();
+        } else {
+            alert("Incorrect Access Code");
+        }
+    }
+
+    async function loadRoster() {
+        const container = document.getElementById('roster-container');
+        if(!container) return;
+        container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
+        try {
+            const [gRes, pRes, rRes] = await Promise.all([ 
+                fetch(`${SCRIPT_URL}?action=getGames`), 
+                fetch(`${SCRIPT_URL}?action=getPlayers`), 
+                fetch(`${SCRIPT_URL}?action=getRSVPs`) 
+            ]);
+            const games = await gRes.json(); 
+            const players = await pRes.json(); 
+            const rsvps = await rRes.json();
+
+            const now = new Date(); now.setHours(0,0,0,0);
+            const nextGame = games.find(g => new Date(g.date) >= now);
+            if(!nextGame) return;
+
+            const targetDate = formatSafe(nextGame.date).toLowerCase().trim();
+            document.getElementById('admin-game-label').innerText = `NEXT: ${formatSafe(nextGame.date)}`;
+            
+            const teamNames = ["Team A", "Team B", "Team C", "Team D"];
+            container.innerHTML = teamNames.map(team => {
+                const teamPlayers = players.filter(p => (p['team wed'] === team || p['team sat'] === team));
+                return `
+                    <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-4">
                         <div class="bg-gray-900 p-4 text-white text-[10px] font-black uppercase tracking-widest">${team}</div>
                         <div class="divide-y divide-gray-50">
                             ${teamPlayers.map(p => {
@@ -533,67 +678,9 @@
                             }).join('')}
                         </div>
                     </div>`;
-                }).join('');
-            } catch(e) { console.error(e); }
-        }
-
-        async function loadTeamsData() {
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=getPlayers`);
-                allPlayersData = await res.json(); renderTeams();
-            } catch(e) { console.error(e); }
-        }
-
-        function setStream(stream) {
-            currentStream = stream;
-            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all" : "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
-            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all" : "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
-            renderTeams();
-        }
-
-        function renderTeams() {
-            const filter = document.getElementById('team-filter').value;
-            const container = document.getElementById('teams-grid');
-            const teamNames = ["Team A", "Team B", "Team C", "Team D"];
-            const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
-            const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
-            container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
-                const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName && (p.stream === dayMatch || p.stream === 'Both'));
-                return `<div class="bg-white rounded-[2rem] shadow-sm border border-gray-50 overflow-hidden">
-                    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-50"><span class="font-black text-xs uppercase italic tracking-widest">${teamName}</span></div>
-                    <div class="p-2 space-y-1">${teamPlayers.map(p => `<div class="px-4 py-3 flex items-center justify-between"><p class="font-bold text-sm text-gray-800">${p.name || p.Name}</p></div>`).join('')}</div>
-                </div>`;
             }).join('');
-        }
-
-        async function loadStats() {
-            const container = document.getElementById('stats-container');
-            container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=getStats`);
-                let stats = await res.json();
-                stats.sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
-                container.innerHTML = stats.map((s, i) => `
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-50">
-                        <div class="flex items-center gap-4">
-                            <span class="text-xs font-black text-gray-300">#${i+1}</span>
-                            <span class="font-bold">${s.name}</span>
-                        </div>
-                        <span class="bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-black">${s.goals} G</span>
-                    </div>
-                `).join('');
-            } catch(e) { console.error(e); }
-        }
-
-        function checkAdmin() {
-            if(document.getElementById('admin-pass').value === 'ALENA2024') {
-                document.getElementById('admin-login-view').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                loadRoster();
-            } else {
-                alert("Incorrect Access Code");
-            }
-        }
-    </script>
+        } catch(e) { console.error(e); }
+    }
+</script>
 </body>
 </html>
