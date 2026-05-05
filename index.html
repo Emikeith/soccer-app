@@ -106,7 +106,6 @@
                     </div>
                     <button onclick="loadRoster()" class="text-green-600 text-xs font-bold uppercase"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
                 </div>
-                
                 <div id="roster-container" class="space-y-4">
                     <p class="text-center text-gray-400 py-10">Loading RSVP data...</p>
                 </div>
@@ -138,7 +137,7 @@
     </nav>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyf7zg0kNVJmGVy-pisGMBQla0Tr649x_okiAt0fWOkQDC_HkCfg8A1VHZFAnoFEnsU/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiYa0EUGqu2R8y5sHvz5NoWDLUEwchf1nGaquano9mhx2MexBRwd3ekF4GzjTVAS3-/exec'; 
         let allPlayersData = []; 
         let currentStream = 'Wed';
 
@@ -185,7 +184,7 @@
         function formatSafe(val) {
             if (!val) return 'TBA';
             let d = new Date(val);
-            if (isNaN(d.getTime())) return val;
+            if (isNaN(d.getTime())) return val.toString().trim();
             return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
         }
 
@@ -373,7 +372,6 @@
             };
 
             try {
-                // Post to Google Script
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -381,9 +379,8 @@
                 });
                 alert(`You are marked as ${status.toUpperCase()} for ${gameDate}!`);
                 
-                // If on Admin page, refresh roster immediately
                 if(!document.getElementById('admin-dashboard').classList.contains('hidden')) {
-                    setTimeout(loadRoster, 1500); // Small delay to let Sheet process
+                    setTimeout(loadRoster, 1500); 
                 }
             } catch (e) {
                 alert("Submit failed, please try again.");
@@ -424,6 +421,7 @@
                     return;
                 }
 
+                // EXACT ALIGNMENT WITH APPS SCRIPT DATE
                 const gameDateStr = formatSafe(nextGame.date).toLowerCase().trim();
                 adminLabel.innerText = `Game: ${formatSafe(nextGame.date)}`;
 
@@ -448,8 +446,7 @@
                             ${playersInTeam.length > 0 ? playersInTeam.map(p => {
                                 const playerEmail = (p.email || p.Email || "").toLowerCase().trim();
                                 
-                                // FUZZY MATCH LOGIC:
-                                // Check if email matches AND date string (ignoring case/extra spaces)
+                                // IMPROVED FUZZY MATCH
                                 const userRSVP = rsvps.filter(r => {
                                     const rEmail = (r.email || r.Email || "").toLowerCase().trim();
                                     const rDate = (r.gamedate || r.gameDate || r.GameDate || "").toLowerCase().trim();
