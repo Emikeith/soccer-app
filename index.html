@@ -361,12 +361,13 @@
             const gameDate = document.getElementById('next-game-date').innerText;
             if(gameDate === "No Games Scheduled") return;
             
-            const email = prompt("Enter your email to confirm:");
-            if(!email) return;
+            const emailInput = prompt("Enter your email to confirm:");
+            if(!emailInput) return;
+            const email = emailInput.toLowerCase().trim();
 
             const payload = {
                 action: 'submitRSVP',
-                email: email.toLowerCase().trim(),
+                email: email,
                 status: status,
                 gameDate: gameDate
             };
@@ -378,6 +379,7 @@
                     body: JSON.stringify(payload)
                 });
                 alert(`You are marked as ${status.toUpperCase()} for ${gameDate}!`);
+                if(!document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
             } catch (e) {
                 alert("Submit failed, please try again.");
             }
@@ -397,7 +399,6 @@
             container.innerHTML = '<p class="text-center text-gray-400 py-10">Updating Attendance...</p>';
             
             try {
-                // 1. Get Schedule to find the NEXT game date
                 const gamesRes = await fetch(`${SCRIPT_URL}?action=getGames`);
                 const games = await gamesRes.json();
                 const now = new Date();
@@ -410,16 +411,15 @@
                     return;
                 }
 
+                // Match the date string exactly as it is saved in the Sheet
                 const gameDateStr = formatSafe(nextGame.date);
                 adminLabel.innerText = `Game: ${gameDateStr}`;
 
-                // 2. Identify the stream (Wed or Sat)
-                const day = new Date(nextGame.date).getDay(); // 3 = Wed, 6 = Sat
+                const day = new Date(nextGame.date).getDay(); 
                 const autoStream = (day === 6) ? 'Sat' : 'Wed';
                 const teamField = autoStream === 'Wed' ? 'team wed' : 'team sat';
                 const dayMatch = autoStream === 'Wed' ? 'Wednesday' : 'Saturday';
 
-                // 3. Fetch Players and RSVPs
                 const [pRes, rRes] = await Promise.all([
                     fetch(`${SCRIPT_URL}?action=getPlayers`),
                     fetch(`${SCRIPT_URL}?action=getRSVPs`)
@@ -441,14 +441,17 @@
                         </div>
                         <div class="divide-y divide-gray-50">
                             ${playersInTeam.length > 0 ? playersInTeam.map(p => {
+                                // 1. Clean player email for matching
                                 const playerEmail = (p.email || p.Email || "").toLowerCase().trim();
-                                // Get the RSVP specifically for this game date
-                                const userRSVP = rsvps.filter(r => 
-                                    (r.email || r.Email || "").toLowerCase().trim() === playerEmail &&
-                                    r.gameDate === gameDateStr
-                                ).reverse()[0];
                                 
-                                const status = userRSVP ? userRSVP.status || userRSVP.Status : 'Pending';
+                                // 2. Find matching RSVP (Checking Email AND Date)
+                                const userRSVP = rsvps.filter(r => {
+                                    const rsvpEmail = (r.email || r.Email || "").toLowerCase().trim();
+                                    const rsvpDate = (r.gameDate || r.GameDate || "").trim();
+                                    return rsvpEmail === playerEmail && rsvpDate === gameDateStr;
+                                }).reverse()[0]; // Get the most recent one
+                                
+                                const status = userRSVP ? (userRSVP.status || userRSVP.Status) : 'Pending';
                                 const color = status === 'In' ? 'text-green-600 bg-green-50' : (status === 'Out' ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50');
 
                                 return `<div class="p-4 flex justify-between items-center">
@@ -461,7 +464,7 @@
                 }).join('');
 
             } catch(e) { 
-                console.error(e);
+                console.error("Admin Load Error:", e);
                 container.innerHTML = '<p class="text-center text-red-500 py-10">Connection Error.</p>'; 
             }
         }
