@@ -26,7 +26,7 @@
         </div>
     </header>
 
-    <!-- MOBILE SIDE MENU (Hidden by default) -->
+    <!-- MOBILE SIDE MENU -->
     <div id="side-menu" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden transition-opacity duration-300">
         <div class="bg-white w-3/4 h-full p-6 space-y-6">
             <div class="flex justify-between items-center border-b pb-4">
@@ -50,7 +50,6 @@
         <!-- PAGE: HOME -->
         <section id="home" class="page active space-y-6">
             <div class="rounded-2xl overflow-hidden shadow-lg bg-black aspect-video relative group">
-                <!-- Replace with real video/image -->
                 <div class="absolute inset-0 flex items-center justify-center bg-green-900 bg-opacity-20">
                     <i class="fas fa-play-circle text-6xl text-white opacity-90 transition-transform group-active:scale-90"></i>
                 </div>
@@ -62,8 +61,8 @@
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                     <h2 class="text-xs font-extrabold text-green-600 uppercase tracking-widest">Live RSVP</h2>
                 </div>
-                <p class="text-2xl font-black text-gray-800">Saturday Indoor</p>
-                <p class="text-sm text-gray-500 font-medium mt-1">Oct 12 • 10:00 AM • Arena A</p>
+                <p class="text-2xl font-black text-gray-800" id="next-game-date">Loading next game...</p>
+                <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
                 
                 <div class="grid grid-cols-2 gap-3 mt-5">
                     <button onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 active:bg-green-700 transition-all">I'M IN</button>
@@ -75,12 +74,7 @@
         <!-- PAGE: SCHEDULE -->
         <section id="schedule" class="page space-y-4">
             <h2 class="text-2xl font-bold">Game Schedule</h2>
-            <div class="space-y-3">
-                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
-                    <p class="font-bold">Winter Season - Round 1</p>
-                    <p class="text-sm text-gray-500">Every Sat | Oct - Apr</p>
-                </div>
-                <!-- Schedule items would be loaded from Google Sheets here -->
+            <div id="schedule-container" class="space-y-3">
                 <p class="text-center text-gray-400 py-10">Loading games from sheet...</p>
             </div>
         </section>
@@ -93,25 +87,33 @@
                     <span>Player</span>
                     <span>Goals</span>
                 </div>
-                <div class="divide-y divide-gray-50">
-                    <div class="p-4 flex justify-between"><span>Ahmed D.</span> <span class="font-bold">12</span></div>
-                    <div class="p-4 flex justify-between"><span>Michael S.</span> <span class="font-bold">9</span></div>
-                    <div class="p-4 flex justify-between"><span>John K.</span> <span class="font-bold">7</span></div>
+                <div id="stats-container" class="divide-y divide-gray-50">
+                    <p class="p-4 text-center text-gray-400">Loading stats...</p>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE: ADMIN -->
-        <section id="admin" class="page">
-            <div class="bg-white p-8 rounded-3xl shadow-sm border text-center">
+        <!-- PAGE: ADMIN (Now Dynamic) -->
+        <section id="admin" class="page space-y-6">
+            <div id="admin-login-view" class="bg-white p-8 rounded-3xl shadow-sm border text-center">
                 <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
                 <h2 class="text-xl font-bold mb-2">Manager Access</h2>
-                <p class="text-gray-500 text-sm mb-6">View live player counts and rearrange team rosters.</p>
-                <input type="password" placeholder="Enter Access Code" class="w-full p-3 border rounded-xl mb-4 text-center">
-                <button class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold">Login</button>
+                <input type="password" id="admin-pass" placeholder="Enter Access Code" class="w-full p-3 border rounded-xl mb-4 text-center">
+                <button onclick="checkAdmin()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold">Login</button>
+            </div>
+
+            <div id="admin-dashboard" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border space-y-4">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase">Add New Player</h3>
+                    <input type="text" id="reg-name" placeholder="Full Name" class="w-full p-3 bg-gray-50 border rounded-xl">
+                    <input type="email" id="reg-email" placeholder="Email Address" class="w-full p-3 bg-gray-50 border rounded-xl">
+                    <button onclick="registerNewPlayer()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Add to Roster</button>
+                </div>
+                <div id="roster-container" class="space-y-2">
+                    <!-- Players will load here -->
+                </div>
             </div>
         </section>
-
     </main>
 
     <!-- BOTTOM TAB NAVIGATION -->
@@ -129,42 +131,108 @@
             <span class="text-[10px] font-bold">Stats</span>
         </button>
         <button onclick="showPage('admin')" id="btn-admin" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-cog text-xl"></i>
+            <i class="fas fa-user-shield text-xl"></i>
             <span class="text-[10px] font-bold">Admin</span>
         </button>
     </nav>
 
     <script>
-        // TOGGLE SIDE MENU
+        const SCRIPT_URL = 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL';
+
         function toggleMenu() {
             const menu = document.getElementById('side-menu');
             menu.classList.toggle('hidden');
         }
 
-        // PAGE SWITCHING LOGIC
         function showPage(pageId) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // Show selected page
             document.getElementById(pageId).classList.add('active');
             
-            // Update Navigation Icons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-600', 'text-gray-400'));
             document.getElementById('btn-' + pageId).classList.replace('text-gray-400', 'text-green-600');
             
-            // Close side menu if open
             document.getElementById('side-menu').classList.add('hidden');
             window.scrollTo(0, 0);
+
+            if(pageId === 'schedule') loadSchedule();
+            if(pageId === 'stats') loadStats();
+            if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
         }
 
-        // DUMMY RSVP FUNCTION
-        function submitRSVP(choice) {
-            const email = prompt("Enter your email to confirm:");
-            if(email) {
-                alert("You are marked as: " + choice.toUpperCase());
-                // Here is where your fetch() to Google Sheets will go
+        async function submitRSVP(status) {
+            const email = prompt("Enter email to confirm RSVP:");
+            if(!email) return;
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'submitRSVP', email: email, status: status, gameId: 'G1' })
+                });
+                alert("RSVP Recorded!");
+            } catch(e) { alert("Error saving RSVP"); }
+        }
+
+        async function registerNewPlayer() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            if(!name || !email) return alert("Fields required");
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ action: 'registerPlayer', name: name, email: email })
+            });
+            alert("Player added!");
+            loadRoster();
+        }
+
+        async function loadSchedule() {
+            const res = await fetch(SCRIPT_URL + "?action=getGames");
+            const games = await res.json();
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = games.map(g => `
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+                    <p class="font-bold">${g.date}</p>
+                    <p class="text-sm text-gray-500">${g.time} | ${g.loc}</p>
+                </div>
+            `).join('');
+            
+            // Update Home Screen with First Game
+            if(games[0]) {
+                document.getElementById('next-game-date').innerText = games[0].date;
+                document.getElementById('next-game-loc').innerText = `${games[0].time} • ${games[0].loc}`;
             }
         }
+
+        async function loadStats() {
+            const res = await fetch(SCRIPT_URL + "?action=getStats");
+            const stats = await res.json();
+            document.getElementById('stats-container').innerHTML = stats.map(s => `
+                <div class="p-4 flex justify-between"><span>${s.player}</span> <span class="font-bold">${s.goals}</span></div>
+            `).join('');
+        }
+
+        async function loadRoster() {
+            const res = await fetch(SCRIPT_URL + "?action=getPlayers");
+            const players = await res.json();
+            document.getElementById('roster-container').innerHTML = players.map(p => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50">
+                    <div><p class="font-bold">${p.name}</p><p class="text-xs text-gray-400">${p.team} | ${p.role}</p></div>
+                    <button class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg">Manage</button>
+                </div>
+            `).join('');
+        }
+
+        function checkAdmin() {
+            // Simple logic: if pass is 1234
+            if(document.getElementById('admin-pass').value === '1234') {
+                document.getElementById('admin-login-view').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                loadRoster();
+            } else { alert("Wrong code"); }
+        }
+
+        // Load home match data on startup
+        window.onload = loadSchedule;
     </script>
 </body>
 </html>
