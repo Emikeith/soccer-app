@@ -90,27 +90,6 @@
     <main class="max-w-md mx-auto px-4 pt-4">
         
         <section id="home" class="page active space-y-6">
-    
-    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-2">
-                <span id="rsvp-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <h2 id="rsvp-header" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Matchday Availability</h2>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <p class="text-2xl font-black text-gray-900 leading-none" id="next-game-date">Loading...</p>
-            <p class="text-sm text-green-700 font-bold" id="next-game-loc">Please wait...</p>
-        </div>
-        <div id="next-game-matchups" class="mt-6 space-y-3"></div>
-        <div class="mt-6 pt-6 border-t border-gray-50">
-            <div id="next-game-jersey" class="mb-4 text-[11px] font-bold text-gray-500 flex items-center gap-2"></div>
-            <div id="rsvp-controls" class="grid grid-cols-2 gap-3">
-                <button onclick="submitRSVP('In')" class="bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-all">I'M IN</button>
-                <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-500 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all">I'M OUT</button>
-            </div>
-        </div>
-    </div>
             
     <div class="py-2">
         <div class="flex justify-between items-end px-1 mb-4">
@@ -152,6 +131,27 @@
         </div>
     </div>
 
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-2">
+                <span id="rsvp-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <h2 id="rsvp-header" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Matchday Availability</h2>
+            </div>
+        </div>
+        <div class="space-y-1">
+            <p class="text-2xl font-black text-gray-900 leading-none" id="next-game-date">Loading...</p>
+            <p class="text-sm text-green-700 font-bold" id="next-game-loc">Please wait...</p>
+        </div>
+        <div id="next-game-matchups" class="mt-6 space-y-3"></div>
+        <div class="mt-6 pt-6 border-t border-gray-50">
+            <div id="next-game-jersey" class="mb-4 text-[11px] font-bold text-gray-500 flex items-center gap-2"></div>
+            <div id="rsvp-controls" class="grid grid-cols-2 gap-3">
+                <button onclick="submitRSVP('In')" class="bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-all">I'M IN</button>
+                <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-500 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all">I'M OUT</button>
+            </div>
+        </div>
+    </div>
+            
     <div class="grid grid-cols-2 gap-3">
         <div onclick="showPage('about')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
             <i class="fas fa-shield-alt text-green-700 text-xl mb-3"></i>
