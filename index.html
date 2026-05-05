@@ -57,12 +57,11 @@
                 <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
                 
                 <div id="next-game-matchups" class="mt-4 space-y-2"></div>
-
                 <div id="next-game-jersey" class="mt-4 text-[10px] font-bold text-green-700 bg-green-50 inline-block px-2 py-1 rounded"></div>
                 
                 <div class="grid grid-cols-2 gap-3 mt-5">
-                    <button id="btn-rsvp-in" onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg active:bg-green-700 transition-all disabled:opacity-50">I'M IN</button>
-                    <button id="btn-rsvp-out" onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-200 transition-all disabled:opacity-50">I'M OUT</button>
+                    <button id="btn-rsvp-in" onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg active:bg-green-700 transition-all">I'M IN</button>
+                    <button id="btn-rsvp-out" onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-200 transition-all">I'M OUT</button>
                 </div>
             </div>
         </section>
@@ -156,25 +155,23 @@
         }
 
         /**
-         * NEW DYNAMIC JERSEY LOGIC
-         * It reads the "jersey" string for the game (e.g. "A & C: BLUE | B & D: YELLOW")
-         * and detects which color is associated with the team letter.
+         * FIXED DYNAMIC JERSEY LOGIC
+         * Correctly handles "A & C" vs "B & D" assignments.
          */
         function getDynamicTeamColor(teamName, jerseyString) {
             if (!teamName || !jerseyString) return 'text-gray-800';
             
             const name = teamName.trim().toUpperCase();
-            const info = jerseyString.toUpperCase();
+            const jerseyParts = jerseyString.toUpperCase().split('|');
             
-            // Extract the letter (A, B, C, or D)
-            const teamLetter = name.replace('TEAM ', ''); 
+            // Extract just the letter (e.g., "B" from "Team B")
+            const teamLetter = name.replace('TEAM ', '').trim(); 
 
-            // Find where this letter appears in the jersey string
-            const segments = info.split('|');
-            for (let seg of segments) {
-                if (seg.includes(teamLetter)) {
-                    if (seg.includes('BLUE')) return 'text-blue-600';
-                    if (seg.includes('YELLOW')) return 'text-yellow-500';
+            for (let part of jerseyParts) {
+                // Check if this specific part of the string contains the letter and the color
+                if (part.includes(teamLetter)) {
+                    if (part.includes('BLUE')) return 'text-blue-600';
+                    if (part.includes('YELLOW')) return 'text-yellow-500';
                 }
             }
             return 'text-gray-800';
@@ -219,7 +216,6 @@
                     document.getElementById('next-game-loc').innerText = `${formatTime(firstGame.time)} @ ${firstGame.location || 'TBA'}`;
                     document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${jerseyInfo || 'TBA'}`;
                     
-                    // Matchups for the Home RSVP Card
                     const matches = (firstGame.matchup || "TBA vs TBA").split(' | ');
                     homeMatchups.innerHTML = matches.map(m => {
                         const parts = m.split(' vs ');
@@ -235,7 +231,6 @@
                     }).join('');
                 }
 
-                // Schedule Page List
                 container.innerHTML = games.map(g => {
                     const jerseyInfo = g.jersey || "";
                     const teams = (g.matchup || "TBA vs TBA").split(' | ');
