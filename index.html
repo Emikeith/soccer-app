@@ -93,7 +93,7 @@
             </div>
         </section>
 
-        <!-- PAGE: ADMIN (Now Dynamic) -->
+        <!-- PAGE: ADMIN -->
         <section id="admin" class="page space-y-6">
             <div id="admin-login-view" class="bg-white p-8 rounded-3xl shadow-sm border text-center">
                 <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
@@ -103,18 +103,48 @@
             </div>
 
             <div id="admin-dashboard" class="hidden space-y-6">
+                <!-- Live Balance Overview -->
+                <div id="team-balance-overview" class="grid grid-cols-2 gap-2 text-center text-[10px] font-bold uppercase tracking-tight">
+                    <!-- JS will fill this -->
+                </div>
+
                 <div class="bg-white p-6 rounded-3xl shadow-sm border space-y-4">
                     <h3 class="text-sm font-bold text-gray-400 uppercase">Add New Player</h3>
                     <input type="text" id="reg-name" placeholder="Full Name" class="w-full p-3 bg-gray-50 border rounded-xl">
                     <input type="email" id="reg-email" placeholder="Email Address" class="w-full p-3 bg-gray-50 border rounded-xl">
                     <button onclick="registerNewPlayer()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Add to Roster</button>
                 </div>
+                
                 <div id="roster-container" class="space-y-2">
                     <!-- Players will load here -->
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- ASSIGNMENT MODAL (POPUP) -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-6 space-y-4 shadow-2xl">
+            <h3 id="modal-player-name" class="font-black text-xl text-gray-800">Assign Team</h3>
+            <input type="hidden" id="modal-player-email">
+            
+            <div>
+                <label class="text-[10px] font-bold text-gray-400 uppercase">Select Team</label>
+                <select id="modal-team" class="w-full p-4 bg-gray-100 rounded-2xl mt-1 font-bold outline-none border-none">
+                    <option value="Unassigned">Unassigned</option>
+                    <option value="Team A">Team A</option>
+                    <option value="Team B">Team B</option>
+                    <option value="Team C">Team C</option>
+                    <option value="Team D">Team D</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeModal()" class="flex-1 py-4 font-bold text-gray-400">Cancel</button>
+                <button onclick="savePlayerUpdate()" class="flex-1 py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">Update</button>
+            </div>
+        </div>
+    </div>
 
     <!-- BOTTOM TAB NAVIGATION -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center p-3 z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
@@ -196,7 +226,6 @@
                 </div>
             `).join('');
             
-            // Update Home Screen with First Game
             if(games[0]) {
                 document.getElementById('next-game-date').innerText = games[0].date;
                 document.getElementById('next-game-loc').innerText = `${games[0].time} • ${games[0].loc}`;
@@ -211,19 +240,70 @@
             `).join('');
         }
 
+        // --- NEW MANAGEMENT FUNCTIONS ---
+
         async function loadRoster() {
             const res = await fetch(SCRIPT_URL + "?action=getPlayers");
             const players = await res.json();
+            
+            // Calculate Team Balance for the overview
+            const counts = { "Team A": 0, "Team B": 0, "Team C": 0, "Team D": 0 };
+            players.forEach(p => { if(counts[p.team] !== undefined) counts[p.team]++; });
+            
+            document.getElementById('team-balance-overview').innerHTML = Object.entries(counts).map(([name, count]) => `
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="text-gray-400">${name}</div>
+                    <div class="text-lg font-black text-green-600">${count}</div>
+                </div>
+            `).join('');
+
+            // Render Roster List
             document.getElementById('roster-container').innerHTML = players.map(p => `
                 <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50">
-                    <div><p class="font-bold">${p.name}</p><p class="text-xs text-gray-400">${p.team} | ${p.role}</p></div>
-                    <button class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg">Manage</button>
+                    <div>
+                        <p class="font-bold">${p.name}</p>
+                        <p class="text-xs ${p.team === 'Unassigned' ? 'text-red-500 font-bold' : 'text-gray-400'}">
+                            ${p.team} | ${p.role}
+                        </p>
+                    </div>
+                    <button onclick="openEditModal('${p.name}', '${p.email}', '${p.team}')" class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg bg-green-50">Manage</button>
                 </div>
             `).join('');
         }
 
+        function openEditModal(name, email, team) {
+            document.getElementById('modal-player-name').innerText = name;
+            document.getElementById('modal-player-email').value = email;
+            document.getElementById('modal-team').value = team;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        async function savePlayerUpdate() {
+            const email = document.getElementById('modal-player-email').value;
+            const team = document.getElementById('modal-team').value;
+
+            // Using no-cors for POST as usual with Apps Script
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({
+                    action: 'updatePlayer',
+                    email: email,
+                    team: team,
+                    role: 'Player'
+                })
+            });
+
+            closeModal();
+            // Give Google a second to process before refreshing
+            setTimeout(loadRoster, 500);
+        }
+
         function checkAdmin() {
-            // Simple logic: if pass is 1234
             if(document.getElementById('admin-pass').value === '1234') {
                 document.getElementById('admin-login-view').classList.add('hidden');
                 document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -231,7 +311,6 @@
             } else { alert("Wrong code"); }
         }
 
-        // Load home match data on startup
         window.onload = loadSchedule;
     </script>
 </body>
