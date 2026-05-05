@@ -411,7 +411,6 @@
                     return;
                 }
 
-                // Match the date string exactly as it is saved in the Sheet
                 const gameDateStr = formatSafe(nextGame.date);
                 adminLabel.innerText = `Game: ${gameDateStr}`;
 
@@ -441,15 +440,14 @@
                         </div>
                         <div class="divide-y divide-gray-50">
                             ${playersInTeam.length > 0 ? playersInTeam.map(p => {
-                                // 1. Clean player email for matching
                                 const playerEmail = (p.email || p.Email || "").toLowerCase().trim();
                                 
-                                // 2. Find matching RSVP (Checking Email AND Date)
+                                // Find matching RSVP (Matching BOTH Email and Date string)
                                 const userRSVP = rsvps.filter(r => {
                                     const rsvpEmail = (r.email || r.Email || "").toLowerCase().trim();
-                                    const rsvpDate = (r.gameDate || r.GameDate || "").trim();
+                                    const rsvpDate = (r.gamedate || r.gameDate || r.GameDate || "").trim();
                                     return rsvpEmail === playerEmail && rsvpDate === gameDateStr;
-                                }).reverse()[0]; // Get the most recent one
+                                }).reverse()[0]; 
                                 
                                 const status = userRSVP ? (userRSVP.status || userRSVP.Status) : 'Pending';
                                 const color = status === 'In' ? 'text-green-600 bg-green-50' : (status === 'Out' ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50');
