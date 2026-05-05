@@ -50,10 +50,8 @@
 
         <!-- PAGE: HOME -->
         <section id="home" class="page active space-y-6">
-            <div class="rounded-2xl overflow-hidden shadow-lg bg-black aspect-video relative group">
-                <div class="absolute inset-0 flex items-center justify-center bg-green-900 bg-opacity-20">
-                    <i class="fas fa-play-circle text-6xl text-white opacity-90 transition-transform group-active:scale-90"></i>
-                </div>
+            <div class="rounded-2xl overflow-hidden shadow-lg bg-black aspect-video relative group text-center flex items-center justify-center">
+                <i class="fas fa-play-circle text-6xl text-white opacity-90 transition-transform group-active:scale-90"></i>
             </div>
 
             <!-- RSVP CARD -->
@@ -177,18 +175,28 @@
             if(pageId === 'stats') loadStats();
         }
 
-        // IMPROVED DATE FORMATTER
+        // FIXED DATE FORMATTER
         function formatSafe(val) {
             if (!val) return 'TBA';
-            
-            // Check for ISO date string pattern
-            if (typeof val === 'string' && val.includes('T') && val.includes('Z')) {
+            if (typeof val === 'string' && val.includes('T')) {
                 const d = new Date(val);
-                if (!isNaN(d)) {
+                // If it's a legit date (not the 1899 filler)
+                if (!isNaN(d) && d.getFullYear() > 1900) {
                     return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
                 }
             }
-            // If it's already a clean string, just return it
+            return val;
+        }
+
+        // FIXED TIME FORMATTER (Specifically for the "1899" issue)
+        function formatTime(val) {
+            if (!val) return 'TBA';
+            if (typeof val === 'string' && val.includes('T')) {
+                const d = new Date(val);
+                if (!isNaN(d)) {
+                    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                }
+            }
             return val;
         }
 
@@ -200,32 +208,29 @@
                 const res = await fetch(`${SCRIPT_URL}?action=getGames`);
                 const games = await res.json();
                 
-                // Update Home Card First
                 if(games && games.length > 0) {
                     const firstGame = games[0];
                     document.getElementById('next-game-date').innerText = formatSafe(firstGame.date);
-                    document.getElementById('next-game-loc').innerText = `${firstGame.time || ''} @ ${firstGame.location || 'TBA'}`;
+                    document.getElementById('next-game-loc').innerText = `${formatTime(firstGame.time)} @ ${firstGame.location || 'TBA'}`;
                     document.getElementById('next-game-jersey').innerText = `👕 Jersey: ${firstGame.jersey || 'TBA'}`;
                 }
 
-                // Update Schedule List
                 container.innerHTML = games.map(g => {
                     const teams = (g.matchup || "TBA vs TBA").split(' | ');
-                    const displayDate = formatSafe(g.date);
                     return `
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
                         <div class="flex justify-between items-start mb-3">
-                            <p class="text-lg font-black text-gray-800">${displayDate}</p>
-                            <div class="text-right text-gray-400">
-                                <p class="text-xs font-bold">${g.time || ''}</p>
-                                <p class="text-[10px]">${g.location || ''}</p>
+                            <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p>
+                                <p class="text-[10px] text-gray-400 uppercase font-black tracking-tighter">${g.location || ''}</p>
                             </div>
                         </div>
                         <div class="space-y-2">
                             ${teams.map(t => {
                                 const parts = t.split(' vs ');
                                 return `
-                                <div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase">
+                                <div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
                                     <span>${parts[0] || 'TBA'}</span>
                                     <span class="text-gray-300 italic px-2">VS</span>
                                     <span>${parts[1] || 'TBA'}</span>
@@ -238,7 +243,6 @@
                     </div>`}).join('');
                 
             } catch(e) { 
-                console.error("Schedule error", e);
                 container.innerHTML = '<p class="text-center text-red-400 py-10">Error loading games.</p>'; 
             }
         }
