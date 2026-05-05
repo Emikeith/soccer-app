@@ -10,10 +10,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .page { display: none; }
         .page.active { display: block; }
-        .nav-btn.active { color: #15803d; }
         .hero-gradient { background: linear-gradient(180deg, #15803d 0%, #064e3b 100%); }
     </style>
 </head>
@@ -31,34 +29,32 @@
         </div>
     </header>
 
-    <div id="side-menu" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden transition-opacity">
+    <div id="side-menu" class="fixed inset-0 bg-black bg-opacity-60 z-[60] hidden">
         <div class="bg-white w-3/4 h-full p-6 space-y-6 shadow-2xl">
             <div class="flex justify-between items-center border-b pb-4">
-                <span class="font-black text-green-800 uppercase italic">Association Menu</span>
+                <span class="font-black text-green-800 uppercase italic">Menu</span>
                 <button onclick="toggleMenu()"><i class="fas fa-times text-xl"></i></button>
             </div>
             <nav class="flex flex-col space-y-1 font-bold text-gray-600">
                 <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('home')"><i class="fas fa-home w-6"></i> Home</a>
-                <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('about')"><i class="fas fa-info-circle w-6"></i> About Alena</a>
+                <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('about')"><i class="fas fa-info-circle w-6"></i> About</a>
                 <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('registration')"><i class="fas fa-user-plus w-6"></i> Registration</a>
                 <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('teams')"><i class="fas fa-users w-6"></i> Teams</a>
                 <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('schedule')"><i class="fas fa-calendar-alt w-6"></i> Schedule</a>
                 <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('bylaws')"><i class="fas fa-gavel w-6"></i> By-Laws</a>
-                <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('stats')"><i class="fas fa-chart-bar w-6"></i> Statistics</a>
+                <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('stats')"><i class="fas fa-chart-bar w-6"></i> Stats</a>
                 <a href="#" class="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-green-50" onclick="showPage('admin')"><i class="fas fa-user-shield w-6"></i> Admin</a>
             </nav>
         </div>
     </div>
 
     <main class="max-w-md mx-auto">
-
+        
         <section id="home" class="page active">
             <div class="hero-gradient text-white p-8 rounded-b-[3rem] shadow-lg mb-6">
                 <h2 class="text-3xl font-black italic uppercase leading-none mb-2">Winnipeg <br>Association.</h2>
-                <p class="text-green-100 text-sm font-medium mb-4">Official home of the Alena Soccer Association. Excellence on and off the pitch.</p>
-                <div class="flex gap-2">
-                    <span class="bg-white/20 text-[10px] px-3 py-1 rounded-full font-bold uppercase backdrop-blur-sm tracking-widest">Est. 2026</span>
-                </div>
+                <p class="text-green-100 text-sm font-medium mb-4">Official home of Alena Soccer. Excellence on the pitch.</p>
+                <span class="bg-white/20 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest">Est. 2026</span>
             </div>
 
             <div class="px-4 space-y-6">
@@ -73,24 +69,16 @@
 
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                     <div class="flex items-center gap-2 mb-1">
-                        <span id="rsvp-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <h2 id="rsvp-header" class="text-xs font-extrabold text-green-600 uppercase tracking-widest">Live RSVP</h2>
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <h2 class="text-xs font-extrabold text-green-600 uppercase tracking-widest">Live RSVP</h2>
                     </div>
                     <p class="text-2xl font-black text-gray-800" id="next-game-date">Loading...</p>
                     <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
                     <div id="next-game-matchups" class="mt-4 space-y-2"></div>
                     <div id="next-game-jersey" class="mt-4 text-[10px] font-bold text-green-700 bg-green-50 inline-block px-2 py-1 rounded"></div>
-                    <div id="rsvp-controls" class="grid grid-cols-2 gap-3 mt-5">
+                    <div class="grid grid-cols-2 gap-3 mt-5">
                         <button onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">I'M IN</button>
                         <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:scale-95 transition-all">I'M OUT</button>
-                    </div>
-                </div>
-
-                <div class="rounded-3xl overflow-hidden shadow-xl bg-black aspect-video relative group flex items-center justify-center">
-                    <img src="https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&q=80&w=1000" class="absolute inset-0 w-full h-full object-cover opacity-50" />
-                    <i class="fas fa-play-circle text-6xl text-white relative z-10 transition-transform group-hover:scale-110"></i>
-                    <div class="absolute bottom-4 left-4 z-10">
-                        <p class="text-[10px] font-bold text-white uppercase tracking-widest italic">Watch Season Highlights</p>
                     </div>
                 </div>
             </div>
@@ -99,26 +87,26 @@
         <section id="about" class="page p-6 space-y-4">
             <h2 class="text-3xl font-black italic uppercase text-green-800">About Alena</h2>
             <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4 text-sm leading-relaxed text-gray-600">
-                <p>The <strong>Alena Soccer Association</strong> is Winnipeg's premier organization for competitive amateur soccer. Our mission is to foster community through sport, ensuring fair play and athletic excellence for all members.</p>
+                <p>The <strong>Alena Soccer Association</strong> is Winnipeg's premier organization for competitive amateur soccer. Our mission is to foster community through sport, ensuring fair play and athletic excellence.</p>
                 <div class="grid grid-cols-2 gap-4 pt-2">
                     <div class="bg-green-50 p-4 rounded-2xl text-center">
                         <i class="fas fa-shield-alt text-green-600 mb-1"></i>
-                        <p class="text-[10px] font-black uppercase text-green-800 leading-none">Competitive<br>League</p>
+                        <p class="text-[10px] font-black uppercase text-green-800">Competitive<br>League</p>
                     </div>
                     <div class="bg-green-50 p-4 rounded-2xl text-center">
                         <i class="fas fa-map-marker-alt text-green-600 mb-1"></i>
-                        <p class="text-[10px] font-black uppercase text-green-800 leading-none">Winnipeg<br>Based</p>
+                        <p class="text-[10px] font-black uppercase text-green-800">Winnipeg<br>Based</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="registration" class="page p-6 space-y-4">
-            <h2 class="text-3xl font-black italic uppercase text-green-800">Registration</h2>
+        <section id="registration" class="page p-6">
+            <h2 class="text-3xl font-black italic uppercase text-green-800 mb-4">Registration</h2>
             <div class="bg-white p-8 rounded-3xl text-center shadow-sm border border-gray-100">
                 <i class="fas fa-file-signature text-5xl text-green-600 mb-4"></i>
                 <h3 class="text-xl font-bold mb-2">Join The Association</h3>
-                <p class="text-sm text-gray-500 mb-6 leading-tight">Ready to play? New players must register through our official portal to be eligible for the draft.</p>
+                <p class="text-sm text-gray-500 mb-6">New players must register to be eligible for the upcoming season draft.</p>
                 <button class="w-full bg-green-700 text-white py-4 rounded-2xl font-black shadow-lg">PLAYER REGISTRATION</button>
             </div>
         </section>
@@ -128,15 +116,11 @@
             <div class="space-y-3">
                 <div class="bg-white p-5 rounded-2xl border-l-4 border-green-600 shadow-sm">
                     <h3 class="font-bold text-sm uppercase">1. Code of Conduct</h3>
-                    <p class="text-xs text-gray-500 mt-1 italic">Players must respect officials, teammates, and opponents at all times.</p>
+                    <p class="text-xs text-gray-500 mt-1 italic">Players must respect officials and teammates at all times.</p>
                 </div>
                 <div class="bg-white p-5 rounded-2xl border-l-4 border-green-600 shadow-sm">
                     <h3 class="font-bold text-sm uppercase">2. Attendance Policy</h3>
-                    <p class="text-xs text-gray-500 mt-1 italic">Failure to RSVP 3 times results in temporary suspension from the roster.</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border-l-4 border-green-600 shadow-sm">
-                    <h3 class="font-bold text-sm uppercase">3. Equipment</h3>
-                    <p class="text-xs text-gray-500 mt-1 italic">Shin guards and official league jerseys are mandatory for match participation.</p>
+                    <p class="text-xs text-gray-500 mt-1 italic">Failure to RSVP 3 times results in temporary suspension.</p>
                 </div>
             </div>
         </section>
@@ -146,7 +130,8 @@
                 <h2 class="text-2xl font-black uppercase italic tracking-tight">Teams</h2>
                 <select id="team-filter" onchange="renderTeams()" class="bg-white border-none text-[10px] font-black uppercase tracking-widest text-green-700 outline-none">
                     <option value="All">All Rosters</option>
-                    <option value="Team A">Team A</option><option value="Team B">Team B</option><option value="Team C">Team C</option><option value="Team D">Team D</option>
+                    <option value="Team A">Team A</option><option value="Team B">Team B</option>
+                    <option value="Team C">Team C</option><option value="Team D">Team D</option>
                 </select>
             </div>
             <div class="flex bg-gray-100 p-1 rounded-xl mb-4">
@@ -170,47 +155,35 @@
             <div id="admin-login-view" class="bg-white p-8 rounded-3xl shadow-sm border text-center">
                 <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
                 <h2 class="text-xl font-bold mb-2">Manager Access</h2>
-                <input type="password" id="admin-pass" placeholder="Enter Access Code" class="w-full p-3 border rounded-xl mb-4 text-center outline-none focus:border-green-500">
+                <input type="password" id="admin-pass" placeholder="Enter Access Code" class="w-full p-3 border rounded-xl mb-4 text-center">
                 <button onclick="checkAdmin()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold">Login</button>
             </div>
             <div id="admin-dashboard" class="hidden space-y-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-black italic uppercase tracking-tighter">Attendance</h2>
-                        <p id="admin-game-label" class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Next Game</p>
-                    </div>
-                    <button onclick="loadRoster()" class="text-green-600 text-xs font-bold uppercase"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
-                </div>
+                <h2 id="admin-game-label" class="text-2xl font-black italic uppercase tracking-tighter">Attendance</h2>
                 <div id="roster-container" class="space-y-4"></div>
             </div>
         </section>
     </main>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center p-3 z-50 shadow-lg">
-        <button onclick="showPage('home')" id="btn-home" class="nav-btn flex flex-col items-center gap-1 text-green-600">
-            <i class="fas fa-home text-xl"></i>
-            <span class="text-[10px] font-bold">Home</span>
+        <button onclick="showPage('home')" id="nav-home" class="nav-btn flex flex-col items-center gap-1 text-green-600">
+            <i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">Home</span>
         </button>
-        <button onclick="showPage('teams')" id="btn-teams" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-users text-xl"></i>
-            <span class="text-[10px] font-bold">Teams</span>
+        <button onclick="showPage('teams')" id="nav-teams" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-users text-xl"></i><span class="text-[10px] font-bold">Teams</span>
         </button>
-        <button onclick="showPage('schedule')" id="btn-schedule" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-calendar-alt text-xl"></i>
-            <span class="text-[10px] font-bold">Games</span>
+        <button onclick="showPage('schedule')" id="nav-schedule" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-calendar-alt text-xl"></i><span class="text-[10px] font-bold">Games</span>
         </button>
-        <button onclick="showPage('stats')" id="btn-stats" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-chart-line text-xl"></i>
-            <span class="text-[10px] font-bold">Stats</span>
+        <button onclick="showPage('stats')" id="nav-stats" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-chart-line text-xl"></i><span class="text-[10px] font-bold">Stats</span>
         </button>
-        <button onclick="showPage('admin')" id="btn-admin" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
-            <i class="fas fa-user-shield text-xl"></i>
-            <span class="text-[10px] font-bold">Admin</span>
+        <button onclick="showPage('admin')" id="nav-admin" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-user-shield text-xl"></i><span class="text-[10px] font-bold">Admin</span>
         </button>
     </nav>
 
     <script>
-        // STRICTLY MAINTAINED LOGIC FROM ORIGINAL
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiYa0EUGqu2R8y5sHvz5NoWDLUEwchf1nGaquano9mhx2MexBRwd3ekF4GzjTVAS3-/exec'; 
         let allPlayersData = []; 
         let currentStream = 'Wed';
@@ -219,43 +192,16 @@
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const target = document.getElementById(pageId);
-            if(target) target.classList.add('active');
-
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-green-600');
-                btn.classList.add('text-gray-400');
-            });
-            const activeBtn = document.getElementById('btn-' + pageId);
-            if(activeBtn) {
-                activeBtn.classList.remove('text-gray-400');
-                activeBtn.classList.add('text-green-600');
-            }
+            document.getElementById(pageId)?.classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-600', 'text-gray-400'));
+            document.getElementById('nav-' + pageId)?.classList.replace('text-gray-400', 'text-green-600');
             document.getElementById('side-menu').classList.add('hidden');
             window.scrollTo(0, 0);
 
-            if(pageId === 'home') loadSchedule();
+            if(pageId === 'home' || pageId === 'schedule') loadSchedule();
             if(pageId === 'teams') loadTeamsData();
-            if(pageId === 'schedule') loadSchedule();
             if(pageId === 'stats') loadStats();
             if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
-        }
-
-        // --- ALL ORIGINAL FUNCTIONS PRESERVED ---
-        function getDynamicTeamColor(teamName, jerseyString) {
-            if (!teamName || !jerseyString) return 'text-gray-800';
-            const name = teamName.trim().toUpperCase();
-            const jerseyText = jerseyString.toUpperCase();
-            const teamLetter = name.replace('TEAM', '').trim(); 
-            const segments = jerseyText.split('|');
-            for (let segment of segments) {
-                const letterMatch = new RegExp(`\\b${teamLetter}\\b`).test(segment);
-                if (letterMatch) {
-                    if (segment.includes('BLUE')) return 'text-blue-600';
-                    if (segment.includes('YELLOW')) return 'text-yellow-500';
-                }
-            }
-            return 'text-gray-800';
         }
 
         function formatSafe(val) {
@@ -272,45 +218,85 @@
             return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
         }
 
+        function getDynamicTeamColor(teamName, jerseyString) {
+            if (!teamName || !jerseyString) return 'text-gray-800';
+            const name = teamName.trim().toUpperCase();
+            const jerseyText = jerseyString.toUpperCase();
+            const teamLetter = name.replace('TEAM', '').trim(); 
+            const segments = jerseyText.split('|');
+            for (let segment of segments) {
+                if (new RegExp(`\\b${teamLetter}\\b`).test(segment)) {
+                    if (segment.includes('BLUE')) return 'text-blue-600';
+                    if (segment.includes('YELLOW')) return 'text-yellow-500';
+                }
+            }
+            return 'text-gray-800';
+        }
+
         async function loadSchedule() {
             const container = document.getElementById('schedule-container');
             const homeMatchups = document.getElementById('next-game-matchups');
-            const rsvpControls = document.getElementById('rsvp-controls');
-            const rsvpHeader = document.getElementById('rsvp-header');
-            const rsvpDot = document.getElementById('rsvp-dot');
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getGames`);
                 const games = await res.json();
                 if(games && games.length > 0) {
-                    const now = new Date(); now.setHours(0, 0, 0, 0);
-                    let nextGame = games.find(g => new Date(g.date) >= now);
-                    if(nextGame) {
-                        const loc = nextGame.location || 'TBA';
-                        const jerseyInfo = nextGame.jersey || "";
-                        document.getElementById('next-game-date').innerText = formatSafe(nextGame.date);
-                        document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} @ ${loc}`;
-                        document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${jerseyInfo || 'TBA'}`;
-                        const matches = (nextGame.matchup || "TBA vs TBA").split(' | ');
-                        homeMatchups.innerHTML = matches.map(m => {
-                            const parts = m.split(' vs ');
-                            return `<div class="bg-gray-50 rounded-xl p-2 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                                <span class="${getDynamicTeamColor(parts[0], jerseyInfo)}">${parts[0] || 'TBA'}</span>
-                                <span class="text-gray-300 italic px-2">VS</span>
-                                <span class="${getDynamicTeamColor(parts[1], jerseyInfo)}">${parts[1] || 'TBA'}</span>
+                    const now = new Date(); now.setHours(0,0,0,0);
+                    let nextGame = games.find(g => new Date(g.date) >= now) || games[0];
+                    
+                    // Home Screen
+                    document.getElementById('next-game-date').innerText = formatSafe(nextGame.date);
+                    document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} @ ${nextGame.location}`;
+                    document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${nextGame.jersey}`;
+                    
+                    const matches = (nextGame.matchup || "").split(' | ');
+                    homeMatchups.innerHTML = matches.map(m => {
+                        const parts = m.split(' vs ');
+                        return `<div class="bg-gray-50 rounded-xl p-2 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase">
+                            <span class="${getDynamicTeamColor(parts[0], nextGame.jersey)}">${parts[0]}</span>
+                            <span class="text-gray-300 italic px-2">VS</span>
+                            <span class="${getDynamicTeamColor(parts[1], nextGame.jersey)}">${parts[1]}</span>
+                        </div>`;
+                    }).join('');
+
+                    // Schedule Page - MATCHUPS INCLUDED HERE
+                    if(container) {
+                        container.innerHTML = games.map(g => {
+                            const gMatches = (g.matchup || "TBA").split(' | ');
+                            return `<div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100 mb-4">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
+                                    <p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p>
+                                </div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase mb-3"><i class="fas fa-map-marker-alt mr-1"></i> ${g.location}</p>
+                                <div class="space-y-2">
+                                    ${gMatches.map(m => {
+                                        const p = m.split(' vs ');
+                                        return `<div class="flex justify-between text-[10px] font-black uppercase bg-gray-50 p-2 rounded-lg">
+                                            <span class="${getDynamicTeamColor(p[0], g.jersey)}">${p[0]}</span>
+                                            <span class="text-gray-300">VS</span>
+                                            <span class="${getDynamicTeamColor(p[1], g.jersey)}">${p[1]}</span>
+                                        </div>`;
+                                    }).join('')}
+                                </div>
                             </div>`;
                         }).join('');
                     }
-                    if(container) {
-                        container.innerHTML = games.map(g => `<div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100 mb-4">
-                            <div class="flex justify-between items-start mb-1">
-                                <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
-                                <p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p>
-                            </div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase mb-3"><i class="fas fa-map-marker-alt mr-1"></i> ${g.location || 'TBA'}</p>
-                        </div>`).join('');
-                    }
                 }
             } catch(e) {}
+        }
+
+        async function submitRSVP(status) {
+            const gameDate = document.getElementById('next-game-date').innerText;
+            const emailInput = prompt("Enter email:");
+            if(!emailInput) return;
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'submitRSVP', email: emailInput.toLowerCase().trim(), status: status, gameDate: gameDate })
+                });
+                alert(`Marked ${status} for ${gameDate}`);
+            } catch (e) { alert("Error"); }
         }
 
         async function loadTeamsData() {
@@ -319,13 +305,6 @@
                 allPlayersData = await res.json();
                 renderTeams();
             } catch(e) {}
-        }
-
-        function setStream(stream) {
-            currentStream = stream;
-            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-            renderTeams();
         }
 
         function renderTeams() {
@@ -337,7 +316,7 @@
             container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
                 const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName && (p.stream === dayMatch || p.stream === 'Both'));
                 return `<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-5 py-3 bg-gray-50/50 font-black text-gray-800 uppercase italic text-sm">${teamName}</div>
+                    <div class="px-5 py-3 bg-gray-50 font-black text-gray-800 uppercase italic text-sm">${teamName}</div>
                     <div class="divide-y divide-gray-50">${teamPlayers.map(p => `<div class="p-4 font-bold text-gray-800 text-sm">${p.name}</div>`).join('')}</div>
                 </div>`;
             }).join('');
@@ -355,20 +334,6 @@
                     <span class="text-green-600 font-black text-xl">${s.goals}</span>
                 </div>`).join('');
             } catch(e) {}
-        }
-
-        async function submitRSVP(status) {
-            const gameDate = document.getElementById('next-game-date').innerText;
-            const emailInput = prompt("Enter email:");
-            if(!emailInput) return;
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ action: 'submitRSVP', email: emailInput.toLowerCase().trim(), status: status, gameDate: gameDate })
-                });
-                alert(`Marked ${status}`);
-            } catch (e) { alert("Error"); }
         }
 
         function checkAdmin() {
@@ -392,22 +357,29 @@
                 const players = await pRes.json();
                 const rsvps = await rRes.json();
                 const now = new Date(); now.setHours(0,0,0,0);
-                const nextGame = games.find(g => new Date(g.date) >= now);
-                const gameDateStr = formatSafe(nextGame.date).toLowerCase().trim();
-                document.getElementById('admin-game-label').innerText = `Game: ${gameDateStr.toUpperCase()}`;
+                const nextGame = games.find(g => new Date(g.date) >= now) || games[0];
+                const gameDateStr = formatSafe(nextGame.date);
+                document.getElementById('admin-game-label').innerText = `Roster: ${gameDateStr}`;
 
                 container.innerHTML = ["Team A", "Team B", "Team C", "Team D"].map(team => {
                     const playersInTeam = players.filter(p => (p['team wed'] === team || p['team sat'] === team));
-                    return `<div class="bg-white rounded-3xl border mb-4">
+                    return `<div class="bg-white rounded-3xl border mb-4 overflow-hidden">
                         <div class="bg-black text-white p-3 font-black text-xs uppercase">${team}</div>
                         <div class="divide-y">${playersInTeam.map(p => {
-                            const rsvp = rsvps.filter(r => (r.email||"").toLowerCase() === (p.email||"").toLowerCase() && (r.gamedate||"").toLowerCase().includes(gameDateStr)).reverse()[0];
+                            const rsvp = rsvps.filter(r => (r.email||"").toLowerCase() === (p.email||"").toLowerCase() && (r.gamedate||"") === gameDateStr).reverse()[0];
                             const status = rsvp ? rsvp.status : 'Pending';
                             return `<div class="p-3 flex justify-between text-sm font-bold"><span>${p.name}</span><span class="uppercase text-[9px]">${status}</span></div>`;
                         }).join('')}</div>
                     </div>`;
                 }).join('');
             } catch(e) {}
+        }
+
+        function setStream(stream) {
+            currentStream = stream;
+            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            renderTeams();
         }
 
         window.onload = loadSchedule;
