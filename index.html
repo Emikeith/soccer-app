@@ -90,83 +90,112 @@
     <main class="max-w-md mx-auto px-4 pt-4">
         
         <section id="home" class="page active space-y-6">
-            <div class="relative overflow-hidden rounded-[2.5rem] shadow-2xl h-[320px] bg-black group">
-    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 transition-transform duration-1000 group-hover:scale-105">
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-the-ball-in-the-stadium-1562-large.mp4" type="video/mp4">
-    </video>
-    
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-
-    <div class="relative z-10 h-full p-8 flex flex-col justify-between">
-        
-        <div class="flex justify-between items-start">
-            <div class="inline-flex items-center gap-2 bg-green-600/90 backdrop-blur-md text-white px-3 py-1 rounded-full border border-white/20">
-                <i class="fas fa-users-rays text-[10px] animate-pulse"></i>
-                <span class="text-[9px] font-black uppercase tracking-[0.2em]">Community Hub</span>
+    <div class="relative overflow-hidden rounded-[2.5rem] shadow-2xl h-[320px] bg-black group">
+        <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 transition-transform duration-1000 group-hover:scale-105">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-the-ball-in-the-stadium-1562-large.mp4" type="video/mp4">
+        </video>
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+        <div class="relative z-10 h-full p-8 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div class="inline-flex items-center gap-2 bg-green-600/90 backdrop-blur-md text-white px-3 py-1 rounded-full border border-white/20">
+                    <i class="fas fa-users-rays text-[10px] animate-pulse"></i>
+                    <span class="text-[9px] font-black uppercase tracking-[0.2em]">Community Hub</span>
+                </div>
+                <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Est. 2024</span>
             </div>
-            <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Est. 2024</span>
-        </div>
-
-        <div class="space-y-[-10px]">
-            <h2 class="text-[42px] font-[900] text-white italic tracking-tighter uppercase leading-none">
-                PLAY FOR <span class="text-green-500">PASSION</span>
-            </h2>
-            <div class="flex items-center gap-4">
-                <div class="h-[3px] w-8 bg-green-500 rounded-full"></div>
-                <h2 class="text-[42px] font-[900] text-white italic tracking-tighter uppercase leading-none">
-                    STAY FOR <span class="text-green-500">PEOPLE</span>
-                </h2>
+            <div class="space-y-[-10px]">
+                <h2 class="text-[42px] font-[900] text-white italic tracking-tighter uppercase leading-none">PLAY FOR <span class="text-green-500">PASSION</span></h2>
+                <div class="flex items-center gap-4">
+                    <div class="h-[3px] w-8 bg-green-500 rounded-full"></div>
+                    <h2 class="text-[42px] font-[900] text-white italic tracking-tighter uppercase leading-none">STAY FOR <span class="text-green-500">PEOPLE</span></h2>
+                </div>
             </div>
-        </div>
-
-        <div class="flex justify-between items-end">
-            <div class="space-y-1">
-                <p class="text-[11px] font-black text-white uppercase tracking-tighter">The Alena Legacy</p>
-                <p class="text-[9px] text-gray-400 font-medium uppercase tracking-widest">Winnipeg, Manitoba</p>
-            </div>
-            
-            <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:bg-green-600 hover:scale-110 cursor-pointer">
-                <i class="fas fa-play text-xs ml-1"></i>
+            <div class="flex justify-between items-end">
+                <div class="space-y-1">
+                    <p class="text-[11px] font-black text-white uppercase tracking-tighter">The Alena Legacy</p>
+                    <p class="text-[9px] text-gray-400 font-medium uppercase tracking-widest">Winnipeg, Manitoba</p>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:bg-green-600 hover:scale-110 cursor-pointer">
+                    <i class="fas fa-play text-xs ml-1"></i>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center gap-2">
-                        <span id="rsvp-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <h2 id="rsvp-header" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Matchday Availability</h2>
-                    </div>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-2xl font-black text-gray-900 leading-none" id="next-game-date">Loading...</p>
-                    <p class="text-sm text-green-700 font-bold" id="next-game-loc">Please wait...</p>
-                </div>
-                <div id="next-game-matchups" class="mt-6 space-y-3"></div>
-                <div class="mt-6 pt-6 border-t border-gray-50">
-                    <div id="next-game-jersey" class="mb-4 text-[11px] font-bold text-gray-500 flex items-center gap-2"></div>
-                    <div id="rsvp-controls" class="grid grid-cols-2 gap-3">
-                        <button onclick="submitRSVP('In')" class="bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-all">I'M IN</button>
-                        <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-500 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all">I'M OUT</button>
-                    </div>
+    <div class="py-2">
+        <div class="flex justify-between items-end px-1 mb-4">
+            <div>
+                <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-green-700">Experience Alena</h3>
+                <h2 class="text-2xl font-black italic uppercase tracking-tighter">Community <span class="text-gray-400">Life</span></h2>
+            </div>
+            <div class="flex gap-1">
+                <div id="dot-0" class="w-4 h-1 rounded-full bg-green-700 transition-all duration-300"></div>
+                <div id="dot-1" class="w-1 h-1 rounded-full bg-gray-300 transition-all duration-300"></div>
+                <div id="dot-2" class="w-1 h-1 rounded-full bg-gray-300 transition-all duration-300"></div>
+            </div>
+        </div>
+        <div class="relative h-[250px] w-full overflow-hidden rounded-[2.5rem] shadow-xl border-4 border-white bg-gray-100">
+            <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-100" id="slide-0">
+                <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                <div class="absolute bottom-6 left-6">
+                    <p class="text-[10px] font-black text-green-400 uppercase tracking-widest mb-1">Match Day</p>
+                    <h4 class="text-xl font-black text-white italic uppercase tracking-tighter">Pure Intensity on Pitch</h4>
                 </div>
             </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div onclick="showPage('about')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
-                    <i class="fas fa-shield-alt text-green-700 text-xl mb-3"></i>
-                    <p class="font-black text-xs uppercase tracking-tight">Our History</p>
-                    <p class="text-[10px] text-gray-400 font-medium">Learn about Alena</p>
-                </div>
-                <div onclick="showPage('registration')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
-                    <i class="fas fa-plus-circle text-green-700 text-xl mb-3"></i>
-                    <p class="font-black text-xs uppercase tracking-tight">Join Us</p>
-                    <p class="text-[10px] text-gray-400 font-medium">New Season Open</p>
+            <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-0" id="slide-1">
+                <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1000" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                <div class="absolute bottom-6 left-6">
+                    <p class="text-[10px] font-black text-green-400 uppercase tracking-widest mb-1">Newcomer Network</p>
+                    <h4 class="text-xl font-black text-white italic uppercase tracking-tighter">Friendships Beyond Borders</h4>
                 </div>
             </div>
-        </section>
+            <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-0" id="slide-2">
+                <img src="https://images.unsplash.com/photo-1529900948632-58674ba3926c?q=80&w=1000" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                <div class="absolute bottom-6 left-6">
+                    <p class="text-[10px] font-black text-green-400 uppercase tracking-widest mb-1">The Social Hour</p>
+                    <h4 class="text-xl font-black text-white italic uppercase tracking-tighter">Celebrating as One Family</h4>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-2">
+                <span id="rsvp-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <h2 id="rsvp-header" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Matchday Availability</h2>
+            </div>
+        </div>
+        <div class="space-y-1">
+            <p class="text-2xl font-black text-gray-900 leading-none" id="next-game-date">Loading...</p>
+            <p class="text-sm text-green-700 font-bold" id="next-game-loc">Please wait...</p>
+        </div>
+        <div id="next-game-matchups" class="mt-6 space-y-3"></div>
+        <div class="mt-6 pt-6 border-t border-gray-50">
+            <div id="next-game-jersey" class="mb-4 text-[11px] font-bold text-gray-500 flex items-center gap-2"></div>
+            <div id="rsvp-controls" class="grid grid-cols-2 gap-3">
+                <button onclick="submitRSVP('In')" class="bg-gray-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-all">I'M IN</button>
+                <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-500 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all">I'M OUT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+        <div onclick="showPage('about')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
+            <i class="fas fa-shield-alt text-green-700 text-xl mb-3"></i>
+            <p class="font-black text-xs uppercase tracking-tight">Our History</p>
+            <p class="text-[10px] text-gray-400 font-medium">Learn about Alena</p>
+        </div>
+        <div onclick="showPage('registration')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
+            <i class="fas fa-plus-circle text-green-700 text-xl mb-3"></i>
+            <p class="font-black text-xs uppercase tracking-tight">Join Us</p>
+            <p class="text-[10px] text-gray-400 font-medium">New Season Open</p>
+        </div>
+    </div>
+</section>
         <section id="about" class="page space-y-6">
             <div class="video-docker shadow-xl">
                 <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000">
