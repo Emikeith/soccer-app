@@ -139,7 +139,7 @@
         </section>
     </main>
 
-    <!-- MODAL -->
+    <!-- EDIT MODAL -->
     <div id="edit-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-xs rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 id="modal-player-name" class="font-black text-xl text-gray-800">Assign Team</h3>
@@ -238,7 +238,6 @@
             const filter = document.getElementById('team-filter').value;
             const container = document.getElementById('teams-grid');
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
-            
             const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
             
             container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
@@ -267,7 +266,6 @@
             }).join('');
         }
 
-        // FIXED: Helper to clean up any stray ISO strings if they happen
         function formatSafe(val) {
             if (!val) return 'TBA';
             if (typeof val === 'string' && val.includes('T') && val.includes('Z')) {
@@ -344,7 +342,6 @@
             btnIn.disabled = btnOut.disabled = false;
         }
 
-        // MANAGER FUNCTIONS
         function setModalStream(stream) {
             modalStream = stream;
             document.getElementById('modal-btn-wed').className = stream === 'Wed' ? "flex-1 py-1 text-[9px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-1 text-[9px] font-black uppercase text-gray-400";
