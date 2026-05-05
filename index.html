@@ -236,7 +236,21 @@
                 </div>
             </div>
         </section>
-
+   
+       <section class="mt-8 mb-4">
+    <div class="flex justify-between items-end px-1 mb-4">
+        <div>
+            <h3 class="text-[10px] font-black uppercase tracking-[0.3em] text-green-700">Experience Alena</h3>
+            <h2 class="text-2xl font-black italic uppercase tracking-tighter">Community <span class="text-gray-400">Life</span></h2>
+        </div>
+        <div class="flex gap-1">
+            <div id="dot-0" class="w-4 h-1 rounded-full bg-green-700 transition-all duration-300"></div>
+            <div id="dot-1" class="w-1 h-1 rounded-full bg-gray-300 transition-all duration-300"></div>
+            <div id="dot-2" class="w-1 h-1 rounded-full bg-gray-300 transition-all duration-300"></div>
+        </div>
+    </div>
+    ...
+</section>     
         <section id="bylaws" class="page space-y-4">
             <div class="py-4">
                 <h2 class="text-4xl font-black italic uppercase tracking-tighter">LEAGUE <span class="text-green-700">RULES</span></h2>
@@ -339,7 +353,28 @@
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiYa0EUGqu2R8y5sHvz5NoWDLUEwchf1nGaquano9mhx2MexBRwd3ekF4GzjTVAS3-/exec'; 
         let allPlayersData = []; 
         let currentStream = 'Wed';
+        let currentSlide = 0;
+    const totalSlides = 3;
 
+    function rotateGallery() {
+        const sCurrent = document.getElementById(`slide-${currentSlide}`);
+        const dCurrent = document.getElementById(`dot-${currentSlide}`);
+        if(!sCurrent || !dCurrent) return;
+
+        sCurrent.classList.replace('opacity-100', 'opacity-0');
+        dCurrent.classList.replace('w-4', 'w-1');
+        dCurrent.classList.replace('bg-green-700', 'bg-gray-300');
+
+        currentSlide = (currentSlide + 1) % totalSlides;
+
+        const sNext = document.getElementById(`slide-${currentSlide}`);
+        const dNext = document.getElementById(`dot-${currentSlide}`);
+        
+        sNext.classList.replace('opacity-0', 'opacity-100');
+        dNext.classList.replace('w-1', 'w-4');
+        dNext.classList.replace('bg-gray-300', 'bg-green-700');
+    }
+    setInterval(rotateGallery, 4000);
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('hidden'); }
 
         function showPage(pageId) {
