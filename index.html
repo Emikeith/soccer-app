@@ -3,112 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Soccer Club</title>
+    <title>City United SC App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans pb-20">
+<body class="bg-gray-50 font-sans pb-20 text-gray-900">
 
-    <!-- Header -->
-    <header class="bg-green-600 text-white p-4 shadow-lg sticky top-0 z-50">
-        <div class="flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-tight">CITY UNITED SC</h1>
-            <i class="fas fa-bars text-xl"></i>
+    <!-- TOP NAVIGATION -->
+    <header class="bg-green-700 text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <h1 class="text-xl font-black tracking-tighter">CITY UNITED SC</h1>
+            <button onclick="toggleMenu()" class="p-2 outline-none">
+                <i class="fas fa-bars text-2xl" id="menu-icon"></i>
+            </button>
         </div>
     </header>
 
-    <!-- App-like Hero Section -->
-    <main class="p-4 space-y-6">
-        
-        <!-- Welcome Video Placeholder -->
-        <div class="rounded-2xl overflow-hidden shadow-md bg-black aspect-video flex items-center justify-center text-gray-500">
-            <i class="fas fa-play-circle text-5xl text-white opacity-80"></i>
+    <!-- MOBILE SIDE MENU (Hidden by default) -->
+    <div id="side-menu" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden transition-opacity duration-300">
+        <div class="bg-white w-3/4 h-full p-6 space-y-6">
+            <div class="flex justify-between items-center border-b pb-4">
+                <span class="font-bold text-lg">Menu</span>
+                <button onclick="toggleMenu()"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-4 font-medium">
+                <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('home')"><i class="fas fa-home w-6"></i> Home</a>
+                <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('schedule')"><i class="fas fa-calendar-alt w-6"></i> Schedule</a>
+                <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('stats')"><i class="fas fa-chart-bar w-6"></i> Statistics</a>
+                <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('admin')"><i class="fas fa-user-shield w-6"></i> Manager Login</a>
+                <hr>
+                <a href="#" class="flex items-center gap-3 py-2"><i class="fas fa-book w-6"></i> By-Laws</a>
+            </nav>
         </div>
+    </div>
 
-        <!-- Next Game RSVP Card (The Popup-style Highlight) -->
-        <div id="rsvp-card" class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500">
-            <h2 class="text-sm font-bold text-green-600 uppercase">Next Match</h2>
-            <div class="flex justify-between items-end mt-2">
-                <div>
-                    <p class="text-2xl font-bold text-gray-800" id="game-date">Saturday, Oct 12</p>
-                    <p class="text-gray-500"><i class="fas fa-map-marker-alt"></i> Indoor Arena - 10:00 AM</p>
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-md mx-auto p-4 space-y-6">
+
+        <!-- PAGE: HOME -->
+        <section id="home" class="page active space-y-6">
+            <div class="rounded-2xl overflow-hidden shadow-lg bg-black aspect-video relative group">
+                <!-- Replace with real video/image -->
+                <div class="absolute inset-0 flex items-center justify-center bg-green-900 bg-opacity-20">
+                    <i class="fas fa-play-circle text-6xl text-white opacity-90 transition-transform group-active:scale-90"></i>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-2 gap-3 mt-4">
-                <button onclick="submitRSVP('In')" class="bg-green-500 text-white py-3 rounded-xl font-bold shadow-md active:scale-95 transition-transform">I'm IN ✅</button>
-                <button onclick="submitRSVP('Out')" class="bg-gray-200 text-gray-700 py-3 rounded-xl font-bold active:scale-95 transition-transform">I'm OUT ❌</button>
-            </div>
-        </div>
 
-        <!-- League Standings Quick View -->
-        <section>
-            <h3 class="text-lg font-bold mb-3 px-1">League Table</h3>
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden text-sm">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50 border-b">
-                        <tr>
-                            <th class="p-3">Team</th>
-                            <th class="p-3 text-center">GP</th>
-                            <th class="p-3 text-center">PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b">
-                            <td class="p-3 font-medium">Team Tigers</td>
-                            <td class="p-3 text-center">5</td>
-                            <td class="p-3 text-center font-bold text-green-600">12</td>
-                        </tr>
-                        <tr class="border-b">
-                            <td class="p-3 font-medium">Lions FC</td>
-                            <td class="p-3 text-center">5</td>
-                            <td class="p-3 text-center font-bold text-green-600">10</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- DYNAMIC RSVP CARD -->
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <h2 class="text-xs font-extrabold text-green-600 uppercase tracking-widest">Live RSVP</h2>
+                </div>
+                <p class="text-2xl font-black text-gray-800">Saturday Indoor</p>
+                <p class="text-sm text-gray-500 font-medium mt-1">Oct 12 • 10:00 AM • Arena A</p>
+                
+                <div class="grid grid-cols-2 gap-3 mt-5">
+                    <button onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 active:bg-green-700 transition-all">I'M IN</button>
+                    <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-200 transition-all">I'M OUT</button>
+                </div>
             </div>
         </section>
+
+        <!-- PAGE: SCHEDULE -->
+        <section id="schedule" class="page space-y-4">
+            <h2 class="text-2xl font-bold">Game Schedule</h2>
+            <div class="space-y-3">
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
+                    <p class="font-bold">Winter Season - Round 1</p>
+                    <p class="text-sm text-gray-500">Every Sat | Oct - Apr</p>
+                </div>
+                <!-- Schedule items would be loaded from Google Sheets here -->
+                <p class="text-center text-gray-400 py-10">Loading games from sheet...</p>
+            </div>
+        </section>
+
+        <!-- PAGE: STATS -->
+        <section id="stats" class="page">
+            <h2 class="text-2xl font-bold mb-4">Top Scorers</h2>
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
+                <div class="p-4 border-b bg-gray-50 flex justify-between font-bold text-xs uppercase text-gray-500">
+                    <span>Player</span>
+                    <span>Goals</span>
+                </div>
+                <div class="divide-y divide-gray-50">
+                    <div class="p-4 flex justify-between"><span>Ahmed D.</span> <span class="font-bold">12</span></div>
+                    <div class="p-4 flex justify-between"><span>Michael S.</span> <span class="font-bold">9</span></div>
+                    <div class="p-4 flex justify-between"><span>John K.</span> <span class="font-bold">7</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE: ADMIN -->
+        <section id="admin" class="page">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border text-center">
+                <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
+                <h2 class="text-xl font-bold mb-2">Manager Access</h2>
+                <p class="text-gray-500 text-sm mb-6">View live player counts and rearrange team rosters.</p>
+                <input type="password" placeholder="Enter Access Code" class="w-full p-3 border rounded-xl mb-4 text-center">
+                <button class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold">Login</button>
+            </div>
+        </section>
+
     </main>
 
-    <!-- Bottom Navigation (Mobile App Style) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 text-gray-400">
-        <div class="flex flex-col items-center text-green-600">
+    <!-- BOTTOM TAB NAVIGATION -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center p-3 z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+        <button onclick="showPage('home')" id="btn-home" class="nav-btn flex flex-col items-center gap-1 text-green-600">
             <i class="fas fa-home text-xl"></i>
-            <span class="text-[10px] mt-1">Home</span>
-        </div>
-        <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold">Home</span>
+        </button>
+        <button onclick="showPage('schedule')" id="btn-schedule" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
             <i class="fas fa-calendar-alt text-xl"></i>
-            <span class="text-[10px] mt-1">Schedule</span>
-        </div>
-        <div class="flex flex-col items-center">
+            <span class="text-[10px] font-bold">Schedule</span>
+        </button>
+        <button onclick="showPage('stats')" id="btn-stats" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
             <i class="fas fa-chart-line text-xl"></i>
-            <span class="text-[10px] mt-1">Stats</span>
-        </div>
-        <div class="flex flex-col items-center">
-            <i class="fas fa-user-shield text-xl"></i>
-            <span class="text-[10px] mt-1">Admin</span>
-        </div>
+            <span class="text-[10px] font-bold">Stats</span>
+        </button>
+        <button onclick="showPage('admin')" id="btn-admin" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-cog text-xl"></i>
+            <span class="text-[10px] font-bold">Admin</span>
+        </button>
     </nav>
 
     <script>
-        const SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+        // TOGGLE SIDE MENU
+        function toggleMenu() {
+            const menu = document.getElementById('side-menu');
+            menu.classList.toggle('hidden');
+        }
 
-        async function submitRSVP(status) {
-            const email = prompt("Please enter your registered email:");
-            if (!email) return;
+        // PAGE SWITCHING LOGIC
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update Navigation Icons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-600', 'text-gray-400'));
+            document.getElementById('btn-' + pageId).classList.replace('text-gray-400', 'text-green-600');
+            
+            // Close side menu if open
+            document.getElementById('side-menu').classList.add('hidden');
+            window.scrollTo(0, 0);
+        }
 
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    gameId: 'G001', // This should be dynamic based on your schedule
-                    email: email,
-                    status: status
-                })
-            });
-
-            const result = await response.json();
-            if(result.result === "success") {
-                alert("RSVP Recorded! See you on the pitch.");
+        // DUMMY RSVP FUNCTION
+        function submitRSVP(choice) {
+            const email = prompt("Enter your email to confirm:");
+            if(email) {
+                alert("You are marked as: " + choice.toUpperCase());
+                // Here is where your fetch() to Google Sheets will go
             }
         }
     </script>
