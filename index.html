@@ -155,11 +155,28 @@
             if(pageId === 'stats') loadStats();
         }
 
-        // Helper to determine team color based on jersey assignments
-        function getTeamColorClass(teamName) {
-            const name = teamName.toUpperCase();
-            if (name.includes('A') || name.includes('C')) return 'text-blue-600';
-            if (name.includes('B') || name.includes('D')) return 'text-yellow-500';
+        /**
+         * NEW DYNAMIC JERSEY LOGIC
+         * It reads the "jersey" string for the game (e.g. "A & C: BLUE | B & D: YELLOW")
+         * and detects which color is associated with the team letter.
+         */
+        function getDynamicTeamColor(teamName, jerseyString) {
+            if (!teamName || !jerseyString) return 'text-gray-800';
+            
+            const name = teamName.trim().toUpperCase();
+            const info = jerseyString.toUpperCase();
+            
+            // Extract the letter (A, B, C, or D)
+            const teamLetter = name.replace('TEAM ', ''); 
+
+            // Find where this letter appears in the jersey string
+            const segments = info.split('|');
+            for (let seg of segments) {
+                if (seg.includes(teamLetter)) {
+                    if (seg.includes('BLUE')) return 'text-blue-600';
+                    if (seg.includes('YELLOW')) return 'text-yellow-500';
+                }
+            }
             return 'text-gray-800';
         }
 
@@ -196,27 +213,31 @@
                 
                 if(games && games.length > 0) {
                     const firstGame = games[0];
+                    const jerseyInfo = firstGame.jersey || "";
+                    
                     document.getElementById('next-game-date').innerText = formatSafe(firstGame.date);
                     document.getElementById('next-game-loc').innerText = `${formatTime(firstGame.time)} @ ${firstGame.location || 'TBA'}`;
-                    document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${firstGame.jersey || 'TBA'}`;
+                    document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${jerseyInfo || 'TBA'}`;
                     
-                    // Update Matchups on Home RSVP Card with Dynamic Colors
+                    // Matchups for the Home RSVP Card
                     const matches = (firstGame.matchup || "TBA vs TBA").split(' | ');
                     homeMatchups.innerHTML = matches.map(m => {
                         const parts = m.split(' vs ');
-                        const team1 = parts[0] || 'TBA';
-                        const team2 = parts[1] || 'TBA';
+                        const team1 = parts[0] ? parts[0].trim() : 'TBA';
+                        const team2 = parts[1] ? parts[1].trim() : 'TBA';
                         
                         return `
                         <div class="bg-gray-50 rounded-xl p-2 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                            <span class="${getTeamColorClass(team1)}">${team1}</span>
+                            <span class="${getDynamicTeamColor(team1, jerseyInfo)}">${team1}</span>
                             <span class="text-gray-300 italic px-2 text-[8px]">VS</span>
-                            <span class="${getTeamColorClass(team2)}">${team2}</span>
+                            <span class="${getDynamicTeamColor(team2, jerseyInfo)}">${team2}</span>
                         </div>`;
                     }).join('');
                 }
 
+                // Schedule Page List
                 container.innerHTML = games.map(g => {
+                    const jerseyInfo = g.jersey || "";
                     const teams = (g.matchup || "TBA vs TBA").split(' | ');
                     return `
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
@@ -230,18 +251,18 @@
                         <div class="space-y-2">
                             ${teams.map(t => {
                                 const parts = t.split(' vs ');
-                                const team1 = parts[0] || 'TBA';
-                                const team2 = parts[1] || 'TBA';
+                                const team1 = parts[0] ? parts[0].trim() : 'TBA';
+                                const team2 = parts[1] ? parts[1].trim() : 'TBA';
                                 return `
                                 <div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                                    <span class="${getTeamColorClass(team1)}">${team1}</span>
+                                    <span class="${getDynamicTeamColor(team1, jerseyInfo)}">${team1}</span>
                                     <span class="text-gray-300 italic px-2">VS</span>
-                                    <span class="${getTeamColorClass(team2)}">${team2}</span>
+                                    <span class="${getDynamicTeamColor(team2, jerseyInfo)}">${team2}</span>
                                 </div>`;
                             }).join('')}
                         </div>
                         <div class="mt-3 text-[9px] font-black text-green-600 bg-green-50 p-2 rounded-xl text-center uppercase tracking-widest">
-                            <i class="fas fa-tshirt mr-1"></i> ${g.jersey || 'Check with Manager'}
+                            <i class="fas fa-tshirt mr-1"></i> ${jerseyInfo || 'Check with Manager'}
                         </div>
                     </div>`}).join('');
                 
