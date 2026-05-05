@@ -262,8 +262,8 @@
         function setStream(stream) {
             currentStream = stream;
             // Update UI for Teams Page
-            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
             // Update UI for Admin Page
             const admWed = document.getElementById('admin-wed-toggle');
             const admSat = document.getElementById('admin-sat-toggle');
@@ -280,15 +280,28 @@
             const filter = document.getElementById('team-filter').value;
             const container = document.getElementById('teams-grid');
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
+            
+            // Logic for day filtering
             const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
+            const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
             
             container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
-                const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName);
+                // FILTER: Only show players if assigned to this team AND their stream matches this day (or 'Both')
+                const teamPlayers = allPlayersData.filter(p => 
+                    p[teamField] === teamName && 
+                    (p.stream === dayMatch || p.stream === 'Both')
+                );
+
                 return `<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
                         <span class="font-black text-gray-800 uppercase italic tracking-tighter">${teamName}</span>
                     </div>
-                    <div class="divide-y divide-gray-50">${teamPlayers.map(p => `<div class="p-4 flex items-center gap-4"><p class="font-bold text-gray-800 text-sm">${p.name || p.Name}</p></div>`).join('')}</div>
+                    <div class="divide-y divide-gray-50">
+                        ${teamPlayers.length > 0 
+                            ? teamPlayers.map(p => `<div class="p-4 flex items-center gap-4"><p class="font-bold text-gray-800 text-sm">${p.name || p.Name}</p></div>`).join('')
+                            : `<div class="p-4 text-gray-400 text-xs italic text-center">No players assigned</div>`
+                        }
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -348,9 +361,14 @@
 
                 const teamNames = ["Team A", "Team B", "Team C", "Team D"];
                 const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
+                const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
                 
                 container.innerHTML = teamNames.map(team => {
-                    const playersInTeam = players.filter(p => p[teamField] === team);
+                    // Apply same day/stream logic to Admin view
+                    const playersInTeam = players.filter(p => 
+                        p[teamField] === team && 
+                        (p.stream === dayMatch || p.stream === 'Both')
+                    );
 
                     return `
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
@@ -358,7 +376,7 @@
                             <span class="font-black italic text-sm uppercase">${team} - ${currentStream}</span>
                         </div>
                         <div class="divide-y divide-gray-50">
-                            ${playersInTeam.map(p => {
+                            ${playersInTeam.length > 0 ? playersInTeam.map(p => {
                                 const playerEmail = (p.email || p.Email || "").toLowerCase().trim();
                                 const userRSVP = rsvps.filter(r => (r.email || r.Email || "").toLowerCase().trim() === playerEmail).reverse()[0];
                                 const status = userRSVP ? userRSVP.status || userRSVP.Status : 'Pending';
@@ -369,7 +387,7 @@
                                     <span class="font-bold text-sm">${p.name || p.Name}</span>
                                     <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${color}">${status}</span>
                                 </div>`;
-                            }).join('')}
+                            }).join('') : `<p class="p-4 text-xs italic text-gray-400">No players assigned</p>`}
                         </div>
                     </div>`;
                 }).join('');
