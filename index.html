@@ -194,7 +194,7 @@
 
     <script>
         // REPLACE WITH YOUR NEW DEPLOYED SCRIPT URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUfmZbXszR_-iQPkhDXubO7xujDgy6vZIkFxRiyo3Qr1bbvZJV6M6nTajxgH21qTDN/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSXBFDJ5Ir4cj4bqgNszLNd8Q1Wq2IrIs6sMl9HYI-G0dQs1cufOqH3j46NOPcJBdM/exec'; 
         let allPlayersData = []; 
         let currentStream = 'Wed';
         let modalStream = 'Wed';
@@ -267,6 +267,16 @@
             }).join('');
         }
 
+        // FIXED: Helper to clean up any stray ISO strings if they happen
+        function formatSafe(val) {
+            if (!val) return 'TBA';
+            if (typeof val === 'string' && val.includes('T') && val.includes('Z')) {
+                const d = new Date(val);
+                return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
+            }
+            return val;
+        }
+
         async function loadSchedule() {
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getGames`);
@@ -275,10 +285,11 @@
                 
                 container.innerHTML = games.map(g => {
                     const teams = (g.matchup || "TBA vs TBA").split(' | ');
+                    const displayDate = formatSafe(g.date);
                     return `
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
                         <div class="flex justify-between items-start mb-3">
-                            <p class="text-lg font-black text-gray-800">${g.date || 'TBA'}</p>
+                            <p class="text-lg font-black text-gray-800">${displayDate}</p>
                             <div class="text-right text-gray-400">
                                 <p class="text-xs font-bold">${g.time || ''}</p>
                                 <p class="text-[10px]">${g.location || ''}</p>
@@ -299,8 +310,8 @@
                     </div>`}).join('');
                 
                 if(games[0]) {
-                    document.getElementById('next-game-date').innerText = games[0].date || 'TBA';
-                    document.getElementById('next-game-loc').innerText = `${games[0].location || ''}`;
+                    document.getElementById('next-game-date').innerText = formatSafe(games[0].date);
+                    document.getElementById('next-game-loc').innerText = `${games[0].time || ''} @ ${games[0].location || 'TBA'}`;
                     document.getElementById('next-game-jersey').innerText = `👕 ${games[0].jersey || ''}`;
                 }
             } catch(e) { console.error("Schedule Load Error:", e); }
