@@ -16,7 +16,6 @@
 </head>
 <body class="bg-gray-50 font-sans pb-24 text-gray-900">
 
-    <!-- TOP NAVIGATION -->
     <header class="bg-green-700 text-white p-4 sticky top-0 z-50 shadow-md">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <h1 class="text-xl font-black tracking-tighter">CITY UNITED SC</h1>
@@ -26,7 +25,6 @@
         </div>
     </header>
 
-    <!-- MOBILE SIDE MENU -->
     <div id="side-menu" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden transition-opacity duration-300">
         <div class="bg-white w-3/4 h-full p-6 space-y-6">
             <div class="flex justify-between items-center border-b pb-4">
@@ -43,16 +41,13 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT AREA -->
     <main class="max-w-md mx-auto p-4 space-y-6">
 
-        <!-- PAGE: HOME -->
         <section id="home" class="page active space-y-6">
             <div class="rounded-2xl overflow-hidden shadow-lg bg-black aspect-video relative group flex items-center justify-center">
                 <i class="fas fa-play-circle text-6xl text-white opacity-90 transition-transform group-active:scale-90"></i>
             </div>
 
-            <!-- RSVP CARD -->
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                 <div class="flex items-center gap-2 mb-1">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -61,7 +56,6 @@
                 <p class="text-2xl font-black text-gray-800" id="next-game-date">Loading...</p>
                 <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
                 
-                <!-- NEW MATCHUP DISPLAY SECTION -->
                 <div id="next-game-matchups" class="mt-4 space-y-2"></div>
 
                 <div id="next-game-jersey" class="mt-4 text-[10px] font-bold text-green-700 bg-green-50 inline-block px-2 py-1 rounded"></div>
@@ -73,7 +67,6 @@
             </div>
         </section>
 
-        <!-- PAGE: TEAMS -->
         <section id="teams" class="page space-y-4">
             <div class="flex justify-between items-center px-1">
                 <h2 class="text-2xl font-black uppercase italic tracking-tight">Teams</h2>
@@ -92,19 +85,16 @@
             <div id="teams-grid" class="space-y-4"></div>
         </section>
 
-        <!-- PAGE: SCHEDULE -->
         <section id="schedule" class="page space-y-4">
             <h2 class="text-2xl font-bold italic uppercase tracking-tighter">Game Schedule</h2>
             <div id="schedule-container" class="space-y-4"></div>
         </section>
 
-        <!-- PAGE: STATS -->
         <section id="stats" class="page">
             <h2 class="text-2xl font-bold mb-4">Top Scorers</h2>
             <div id="stats-container" class="space-y-2"></div>
         </section>
 
-        <!-- PAGE: ADMIN -->
         <section id="admin" class="page space-y-6">
             <div id="admin-login-view" class="bg-white p-8 rounded-3xl shadow-sm border text-center">
                 <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
@@ -119,7 +109,6 @@
         </section>
     </main>
 
-    <!-- BOTTOM NAV -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center p-3 z-50 shadow-lg">
         <button onclick="showPage('home')" id="btn-home" class="nav-btn flex flex-col items-center gap-1 text-green-600">
             <i class="fas fa-home text-xl"></i>
@@ -166,6 +155,14 @@
             if(pageId === 'stats') loadStats();
         }
 
+        // Helper to determine team color based on jersey assignments
+        function getTeamColorClass(teamName) {
+            const name = teamName.toUpperCase();
+            if (name.includes('A') || name.includes('C')) return 'text-blue-600';
+            if (name.includes('B') || name.includes('D')) return 'text-yellow-500';
+            return 'text-gray-800';
+        }
+
         function formatSafe(val) {
             if (!val) return 'TBA';
             if (typeof val === 'string' && val.includes('T')) {
@@ -201,17 +198,20 @@
                     const firstGame = games[0];
                     document.getElementById('next-game-date').innerText = formatSafe(firstGame.date);
                     document.getElementById('next-game-loc').innerText = `${formatTime(firstGame.time)} @ ${firstGame.location || 'TBA'}`;
-                    document.getElementById('next-game-jersey').innerText = `👕 Jersey: ${firstGame.jersey || 'TBA'}`;
+                    document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${firstGame.jersey || 'TBA'}`;
                     
-                    // Update Matchups on Home RSVP Card
+                    // Update Matchups on Home RSVP Card with Dynamic Colors
                     const matches = (firstGame.matchup || "TBA vs TBA").split(' | ');
                     homeMatchups.innerHTML = matches.map(m => {
                         const parts = m.split(' vs ');
+                        const team1 = parts[0] || 'TBA';
+                        const team2 = parts[1] || 'TBA';
+                        
                         return `
                         <div class="bg-gray-50 rounded-xl p-2 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                            <span>${parts[0] || 'TBA'}</span>
+                            <span class="${getTeamColorClass(team1)}">${team1}</span>
                             <span class="text-gray-300 italic px-2 text-[8px]">VS</span>
-                            <span>${parts[1] || 'TBA'}</span>
+                            <span class="${getTeamColorClass(team2)}">${team2}</span>
                         </div>`;
                     }).join('');
                 }
@@ -230,11 +230,13 @@
                         <div class="space-y-2">
                             ${teams.map(t => {
                                 const parts = t.split(' vs ');
+                                const team1 = parts[0] || 'TBA';
+                                const team2 = parts[1] || 'TBA';
                                 return `
                                 <div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                                    <span>${parts[0] || 'TBA'}</span>
+                                    <span class="${getTeamColorClass(team1)}">${team1}</span>
                                     <span class="text-gray-300 italic px-2">VS</span>
-                                    <span>${parts[1] || 'TBA'}</span>
+                                    <span class="${getTeamColorClass(team2)}">${team2}</span>
                                 </div>`;
                             }).join('')}
                         </div>
