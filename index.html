@@ -85,10 +85,10 @@
                 </select>
             </div>
 
-            <!-- STREAM TOGGLE (INDOOR/OUTDOOR) -->
+            <!-- STREAM TOGGLE -->
             <div class="flex bg-gray-100 p-1 rounded-xl mb-4">
-                <button onclick="setStream('Indoor')" id="btn-indoor-toggle" class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all">Indoor Rosters</button>
-                <button onclick="setStream('Outdoor')" id="btn-outdoor-toggle" class="flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all">Outdoor Rosters</button>
+                <button onclick="setStream('Wed')" id="btn-wed-toggle" class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all">Wednesday</button>
+                <button onclick="setStream('Sat')" id="btn-sat-toggle" class="flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all">Saturday</button>
             </div>
 
             <div id="teams-grid" class="space-y-4">
@@ -128,15 +128,12 @@
             </div>
 
             <div id="admin-dashboard" class="hidden space-y-6">
-                <div id="team-balance-overview" class="grid grid-cols-2 gap-2 text-center text-[10px] font-bold uppercase tracking-tight"></div>
-
                 <div class="bg-white p-6 rounded-3xl shadow-sm border space-y-4">
                     <h3 class="text-sm font-bold text-gray-400 uppercase">Add New Player</h3>
                     <input type="text" id="reg-name" placeholder="Full Name" class="w-full p-3 bg-gray-50 border rounded-xl">
                     <input type="email" id="reg-email" placeholder="Email Address" class="w-full p-3 bg-gray-50 border rounded-xl">
                     <button onclick="registerNewPlayer()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Add to Roster</button>
                 </div>
-                
                 <div id="roster-container" class="space-y-2"></div>
             </div>
         </section>
@@ -193,11 +190,10 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmb04fkEX6VSOoCVG21rBU2nIwcDBNogftmPaHwaTR1rXZ3RcsznOCVqLNS78JOjxZ/exec';
         let allPlayersData = []; 
-        let currentStream = 'Indoor'; // Default stream view
+        let currentStream = 'Wed'; // Updated to match Sheet Column
 
         function toggleMenu() {
-            const menu = document.getElementById('side-menu');
-            menu.classList.toggle('hidden');
+            document.getElementById('side-menu').classList.toggle('hidden');
         }
 
         function showPage(pageId) {
@@ -217,7 +213,6 @@
             if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
         }
 
-        // --- TEAMS VIEW LOGIC ---
         async function loadTeamsData() {
             try {
                 const res = await fetch(SCRIPT_URL + "?action=getPlayers");
@@ -228,15 +223,15 @@
 
         function setStream(stream) {
             currentStream = stream;
-            const inBtn = document.getElementById('btn-indoor-toggle');
-            const outBtn = document.getElementById('btn-outdoor-toggle');
+            const wedBtn = document.getElementById('btn-wed-toggle');
+            const satBtn = document.getElementById('btn-sat-toggle');
 
-            if(stream === 'Indoor') {
-                inBtn.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all";
-                outBtn.className = "flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all";
+            if(stream === 'Wed') {
+                wedBtn.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all";
+                satBtn.className = "flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all";
             } else {
-                outBtn.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all";
-                inBtn.className = "flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all";
+                satBtn.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all";
+                wedBtn.className = "flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all";
             }
             renderTeams();
         }
@@ -245,7 +240,7 @@
             const filter = document.getElementById('team-filter').value;
             const container = document.getElementById('teams-grid');
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
-            const teamField = currentStream === 'Indoor' ? 'Team Wed' : 'Team Sat';
+            const teamField = currentStream === 'Wed' ? 'Team Wed' : 'Team Sat';
             let html = '';
 
             teamNames.forEach(teamName => {
@@ -257,17 +252,17 @@
                         <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
                             <div>
                                 <span class="font-black text-gray-800 uppercase italic tracking-tighter">${teamName}</span>
-                                <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${currentStream} League</p>
+                                <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${currentStream === 'Wed' ? 'Wednesday' : 'Saturday'} League</p>
                             </div>
                             <span class="text-[10px] font-black text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase tracking-widest">${teamPlayers.length} Members</span>
                         </div>
                         <div class="divide-y divide-gray-50">
                             ${teamPlayers.length > 0 ? teamPlayers.map(p => `
                                 <div class="p-4 flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-sm font-black text-gray-300 border border-gray-100">${p.name.charAt(0)}</div>
+                                    <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-sm font-black text-gray-300 border border-gray-100">${(p.Name || "?").charAt(0)}</div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">${p.name}</p>
-                                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">${p.role || 'Player'}</p>
+                                        <p class="font-bold text-gray-800 text-sm">${p.Name || 'Unknown'}</p>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">${p.Role || 'Player'}</p>
                                     </div>
                                 </div>
                             `).join('') : '<p class="p-6 text-xs text-gray-400 italic text-center uppercase tracking-widest font-bold">No Players Assigned</p>'}
@@ -278,50 +273,27 @@
             container.innerHTML = html;
         }
 
-        // --- SCHEDULE LOGIC ---
         async function loadSchedule() {
             try {
                 const res = await fetch(SCRIPT_URL + "?action=getGames");
                 const games = await res.json();
                 const container = document.getElementById('schedule-container');
-                
-                container.innerHTML = games.map(g => {
-                    const colorA = g.color_a || 'Blue';
-                    const colorB = g.color_b || 'Yellow';
-                    const isIndoor = g.stream === 'Indoor';
-
-                    return `
-                        <div class="bg-white p-5 rounded-3xl shadow-sm border ${isIndoor ? 'border-blue-100' : 'border-green-100'} relative overflow-hidden">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <span class="text-[9px] font-black uppercase tracking-widest ${isIndoor ? 'text-blue-500' : 'text-green-600'}">${g.stream} Stream</span>
-                                    <p class="text-lg font-black text-gray-800 tracking-tight">${g.date}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-xs font-bold text-gray-400">${g.time}</p>
-                                    <p class="text-[10px] font-medium text-gray-400">${g.location}</p>
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100">
-                                <div class="text-center">
-                                    <div class="flex flex-col items-center gap-1">
-                                         <span class="w-3 h-3 rounded-full ${colorA.toLowerCase() === 'blue' ? 'bg-blue-600' : 'bg-yellow-400'}"></span>
-                                         <span class="font-black text-xs text-gray-700">${g.matchup.split(' vs ')[0]}</span>
-                                    </div>
-                                </div>
-                                <div class="text-gray-300 font-black italic text-xs">VS</div>
-                                <div class="text-center">
-                                    <div class="flex flex-col items-center gap-1">
-                                         <span class="w-3 h-3 rounded-full ${colorB.toLowerCase() === 'blue' ? 'bg-blue-600' : 'bg-yellow-400'}"></span>
-                                         <span class="font-black text-xs text-gray-700">${g.matchup.split(' vs ')[1]}</span>
-                                    </div>
-                                </div>
+                container.innerHTML = games.map(g => `
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-3">
+                            <div><p class="text-lg font-black text-gray-800">${g.date}</p></div>
+                            <div class="text-right">
+                                <p class="text-xs font-bold text-gray-400">${g.time}</p>
+                                <p class="text-[10px] font-medium text-gray-400">${g.location}</p>
                             </div>
                         </div>
-                    `;
-                }).join('');
-                
+                        <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100 font-black text-xs">
+                            <span>${g.matchup.split(' vs ')[0]}</span>
+                            <span class="text-gray-300 italic">VS</span>
+                            <span>${g.matchup.split(' vs ')[1]}</span>
+                        </div>
+                    </div>
+                `).join('');
                 if(games[0]) {
                     document.getElementById('next-game-date').innerText = games[0].date;
                     document.getElementById('next-game-loc').innerText = `${games[0].matchup} • ${games[0].location}`;
@@ -329,62 +301,44 @@
             } catch(e) { console.error("Error loading schedule", e); }
         }
 
-        // --- EXISTING UTILITIES ---
         async function submitRSVP(status) {
             const email = prompt("Enter email to confirm RSVP:");
             if(!email) return;
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ action: 'submitRSVP', email: email, status: status, gameId: 'G1' })
-                });
-                alert("RSVP Recorded!");
-            } catch(e) { alert("Error saving RSVP"); }
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'submitRSVP', email: email, status: status }) });
+            alert("RSVP Recorded!");
         }
 
         async function registerNewPlayer() {
             const name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             if(!name || !email) return alert("Fields required");
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({ action: 'registerPlayer', name: name, email: email })
-                });
-                alert("Player added!");
-                loadRoster();
-            } catch(e) { alert("Error adding player"); }
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'registerPlayer', name: name, email: email }) });
+            alert("Player added!");
+            loadRoster();
         }
 
         async function loadStats() {
-            try {
-                const res = await fetch(SCRIPT_URL + "?action=getStats");
-                const stats = await res.json();
-                document.getElementById('stats-container').innerHTML = stats.map(s => `
-                    <div class="p-4 flex justify-between"><span>${s.player}</span> <span class="font-bold">${s.goals}</span></div>
-                `).join('');
-            } catch(e) { console.error("Error loading stats", e); }
+            const res = await fetch(SCRIPT_URL + "?action=getStats");
+            const stats = await res.json();
+            document.getElementById('stats-container').innerHTML = stats.map(s => `
+                <div class="p-4 flex justify-between"><span>${s.player}</span> <span class="font-bold">${s.goals}</span></div>
+            `).join('');
         }
 
         async function loadRoster() {
-            try {
-                const res = await fetch(SCRIPT_URL + "?action=getPlayers");
-                const players = await res.json();
-                
-                document.getElementById('roster-container').innerHTML = players.map(p => `
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50">
-                        <div>
-                            <p class="font-bold">${p.name}</p>
-                            <p class="text-[10px] text-gray-400 uppercase font-black">
-                                IN: ${p.team_indoor || 'None'} | OUT: ${p.team_outdoor || 'None'}
-                            </p>
-                        </div>
-                        <button onclick="openEditModal('${p.name}', '${p.email}', '${p.team_indoor}')" class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg bg-green-50">Manage</button>
+            const res = await fetch(SCRIPT_URL + "?action=getPlayers");
+            const players = await res.json();
+            document.getElementById('roster-container').innerHTML = players.map(p => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50">
+                    <div>
+                        <p class="font-bold">${p.Name}</p>
+                        <p class="text-[10px] text-gray-400 uppercase font-black">
+                            WED: ${p['Team Wed'] || 'None'} | SAT: ${p['Team Sat'] || 'None'}
+                        </p>
                     </div>
-                `).join('');
-            } catch(e) { console.error("Error loading roster", e); }
+                    <button onclick="openEditModal('${p.Name}', '${p.Email}', '${p['Team Wed']}')" class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg bg-green-50">Manage</button>
+                </div>
+            `).join('');
         }
 
         function openEditModal(name, email, team) {
@@ -394,28 +348,14 @@
             document.getElementById('edit-modal').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('edit-modal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('edit-modal').classList.add('hidden'); }
 
         async function savePlayerUpdate() {
             const email = document.getElementById('modal-player-email').value;
             const team = document.getElementById('modal-team').value;
-
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({
-                        action: 'updatePlayer',
-                        email: email,
-                        team: team,
-                        role: 'Player'
-                    })
-                });
-                closeModal();
-                setTimeout(loadRoster, 500);
-            } catch(e) { alert("Error updating player"); }
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'updatePlayer', email: email, team: team }) });
+            closeModal();
+            setTimeout(loadRoster, 500);
         }
 
         function checkAdmin() {
