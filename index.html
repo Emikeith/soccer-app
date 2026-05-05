@@ -155,25 +155,32 @@
         }
 
         /**
-         * FIXED DYNAMIC JERSEY LOGIC
-         * Correctly handles "A & C" vs "B & D" assignments.
+         * ROBUST DYNAMIC JERSEY LOGIC
+         * Correctly maps team letters to colors regardless of jersey string formatting.
          */
         function getDynamicTeamColor(teamName, jerseyString) {
             if (!teamName || !jerseyString) return 'text-gray-800';
             
             const name = teamName.trim().toUpperCase();
-            const jerseyParts = jerseyString.toUpperCase().split('|');
+            const jerseyText = jerseyString.toUpperCase();
             
-            // Extract just the letter (e.g., "B" from "Team B")
-            const teamLetter = name.replace('TEAM ', '').trim(); 
+            // Extract the team letter (A, B, C, or D)
+            const teamLetter = name.replace('TEAM', '').trim(); 
 
-            for (let part of jerseyParts) {
-                // Check if this specific part of the string contains the letter and the color
-                if (part.includes(teamLetter)) {
-                    if (part.includes('BLUE')) return 'text-blue-600';
-                    if (part.includes('YELLOW')) return 'text-yellow-500';
+            // Split the jersey string by "|" to handle assignments like "A & C: BLUE | B & D: YELLOW"
+            const segments = jerseyText.split('|');
+
+            for (let segment of segments) {
+                // Check if this segment contains the team letter
+                // We use a regex to ensure we match the letter itself, not part of a word
+                const letterMatch = new RegExp(`\\b${teamLetter}\\b`).test(segment);
+                
+                if (letterMatch) {
+                    if (segment.includes('BLUE')) return 'text-blue-600';
+                    if (segment.includes('YELLOW')) return 'text-yellow-500';
                 }
             }
+            
             return 'text-gray-800';
         }
 
