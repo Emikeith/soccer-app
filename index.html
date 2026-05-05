@@ -90,39 +90,43 @@
     <main class="max-w-md mx-auto px-4 pt-4">
         
         <section id="home" class="page active space-y-6">
-            <div class="relative overflow-hidden rounded-[2.5rem] shadow-2xl h-[280px] bg-gray-900 group">
-    <img src="https://images.unsplash.com/photo-1510563354643-44b48f57f7a1?q=80&w=1000" 
-         class="absolute inset-0 w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-110" 
-         alt="Soccer Action">
+            <div class="relative overflow-hidden rounded-[2.5rem] shadow-2xl h-[320px] bg-black group">
+    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover opacity-50 transition-transform duration-1000 group-hover:scale-105">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-soccer-player-kicking-the-ball-in-the-stadium-1562-large.mp4" type="video/mp4">
+    </video>
     
-    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
 
-    <div class="relative z-10 h-full p-8 flex flex-col justify-end">
-        <div class="mb-4 inline-flex items-center gap-2 bg-green-600 text-white px-3 py-1 rounded-full w-fit">
-            <i class="fas fa-users text-[10px]"></i>
-            <span class="text-[9px] font-black uppercase tracking-widest">Community Hub</span>
+    <div class="relative z-10 h-full p-8 flex flex-col justify-between">
+        
+        <div class="flex justify-between items-start">
+            <div class="inline-flex items-center gap-2 bg-green-600/90 backdrop-blur-md text-white px-3 py-1 rounded-full border border-white/20">
+                <i class="fas fa-users-rays text-[10px] animate-pulse"></i>
+                <span class="text-[9px] font-black uppercase tracking-[0.2em]">Community Hub</span>
+            </div>
+            <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Est. 2024</span>
         </div>
 
-        <div class="space-y-0">
-            <h2 class="text-4xl font-black text-white italic tracking-tighter uppercase leading-[0.8]">
-                Play for <span class="text-green-500">Passion</span>
+        <div class="space-y-[-10px]">
+            <h2 class="text-[42px] font-[900] text-white italic tracking-tighter uppercase leading-none">
+                PLAY FOR <span class="text-green-500">PASSION</span>
             </h2>
-            <div class="flex items-center gap-3">
-                <div class="h-[2px] w-12 bg-green-500 mt-2"></div>
-                <h2 class="text-4xl font-black text-white italic tracking-tighter uppercase leading-[0.8]">
-                    Stay for <span class="text-green-500">People</span>
-                </div>
+            <div class="flex items-center gap-4">
+                <div class="h-[3px] w-8 bg-green-500 rounded-full"></div>
+                <h2 class="text-[42px] font-[900] text-white italic tracking-tighter uppercase leading-none">
+                    STAY FOR <span class="text-green-500">PEOPLE</span>
+                </h2>
             </div>
         </div>
 
-        <div class="mt-6 flex justify-between items-end">
-            <p class="text-[10px] text-gray-300 font-bold uppercase tracking-widest leading-tight">
-                Alena Soccer Association <br>
-                <span class="text-white">Winnipeg, MB</span>
-            </p>
+        <div class="flex justify-between items-end">
+            <div class="space-y-1">
+                <p class="text-[11px] font-black text-white uppercase tracking-tighter">The Alena Legacy</p>
+                <p class="text-[9px] text-gray-400 font-medium uppercase tracking-widest">Winnipeg, Manitoba</p>
+            </div>
             
-            <div class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center text-white group-hover:bg-green-600 group-hover:border-green-600 transition-all">
-                <i class="fas fa-arrow-right -rotate-45"></i>
+            <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white transition-all duration-300 hover:bg-green-600 hover:scale-110 cursor-pointer">
+                <i class="fas fa-play text-xs ml-1"></i>
             </div>
         </div>
     </div>
