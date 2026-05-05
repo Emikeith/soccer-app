@@ -64,6 +64,7 @@
                 </div>
                 <p class="text-2xl font-black text-gray-800" id="next-game-date">Loading next game...</p>
                 <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
+                <div id="next-game-jersey" class="mt-2 text-[10px] font-bold text-green-700 bg-green-50 inline-block px-2 py-1 rounded"></div>
                 
                 <div class="grid grid-cols-2 gap-3 mt-5">
                     <button id="btn-rsvp-in" onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 active:bg-green-700 transition-all disabled:opacity-50">I'M IN</button>
@@ -192,7 +193,8 @@
     </nav>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQCX0xEMctiF4wf6FMN-uAjMcDKQpIliRqGlU2_sbAFD4NytZpFFELzRpIKutEQcg/exec'; 
+        // REPLACE WITH YOUR NEW DEPLOYED SCRIPT URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUfmZbXszR_-iQPkhDXubO7xujDgy6vZIkFxRiyo3Qr1bbvZJV6M6nTajxgH21qTDN/exec'; 
         let allPlayersData = []; 
         let currentStream = 'Wed';
         let modalStream = 'Wed';
@@ -237,7 +239,6 @@
             const container = document.getElementById('teams-grid');
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
             
-            // Normalized field names from updated Apps Script
             const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
             
             container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
@@ -272,7 +273,9 @@
                 const games = await res.json();
                 const container = document.getElementById('schedule-container');
                 
-                container.innerHTML = games.map(g => `
+                container.innerHTML = games.map(g => {
+                    const teams = (g.matchup || "TBA vs TBA").split(' | ');
+                    return `
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
                         <div class="flex justify-between items-start mb-3">
                             <p class="text-lg font-black text-gray-800">${g.date || 'TBA'}</p>
@@ -281,16 +284,24 @@
                                 <p class="text-[10px]">${g.location || ''}</p>
                             </div>
                         </div>
-                        <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100 font-black text-xs uppercase">
-                            <span>${(g.matchup || "TBA").split(' vs ')[0]}</span>
-                            <span class="text-gray-300 italic">VS</span>
-                            <span>${(g.matchup || "TBA").split(' vs ')[1] || "TBA"}</span>
+                        <div class="space-y-2">
+                            ${teams.map(t => `
+                                <div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase">
+                                    <span>${t.split(' vs ')[0]}</span>
+                                    <span class="text-gray-300 italic">VS</span>
+                                    <span>${t.split(' vs ')[1]}</span>
+                                </div>
+                            `).join('')}
                         </div>
-                    </div>`).join('');
+                        <div class="mt-3 text-[9px] font-black text-green-600 bg-green-50 p-2 rounded-xl text-center uppercase tracking-widest">
+                            <i class="fas fa-tshirt mr-1"></i> ${g.jersey || 'Check with Manager'}
+                        </div>
+                    </div>`}).join('');
                 
                 if(games[0]) {
                     document.getElementById('next-game-date').innerText = games[0].date || 'TBA';
-                    document.getElementById('next-game-loc').innerText = `${games[0].matchup || 'TBA'} • ${games[0].location || ''}`;
+                    document.getElementById('next-game-loc').innerText = `${games[0].location || ''}`;
+                    document.getElementById('next-game-jersey').innerText = `👕 ${games[0].jersey || ''}`;
                 }
             } catch(e) { console.error("Schedule Load Error:", e); }
         }
