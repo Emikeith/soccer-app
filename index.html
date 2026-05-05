@@ -15,7 +15,6 @@
         .page.active { display: block; }
         .nav-btn.active { color: #15803d; }
         .hero-gradient { background: linear-gradient(180deg, #15803d 0%, #166534 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
         .sports-outline { -webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent; }
     </style>
 </head>
@@ -56,6 +55,7 @@
     </div>
 
     <main class="max-w-md mx-auto px-4 pt-4">
+        
         <section id="home" class="page active space-y-6">
             <div class="relative hero-gradient rounded-[2rem] p-6 overflow-hidden shadow-xl shadow-green-900/10">
                 <div class="absolute -right-4 -top-6 text-7xl font-black sports-outline italic opacity-30 select-none">WPG</div>
@@ -85,18 +85,107 @@
                     </div>
                 </div>
             </div>
-            <div class="space-y-3">
-                <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2">Match Highlights</h3>
-                <div class="rounded-3xl overflow-hidden shadow-lg bg-black aspect-video relative group flex items-center justify-center">
-                    <div class="absolute inset-0 bg-cover bg-center opacity-60" style="background-image: url('https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=500');"></div>
-                    <i class="fas fa-play-circle text-6xl text-white relative z-10 opacity-90 transition-transform group-hover:scale-110"></i>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div onclick="showPage('about')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
+                    <i class="fas fa-shield-alt text-green-700 text-xl mb-3"></i>
+                    <p class="font-black text-xs uppercase tracking-tight">Our History</p>
+                    <p class="text-[10px] text-gray-400 font-medium">Learn about Alena</p>
+                </div>
+                <div onclick="showPage('registration')" class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm cursor-pointer">
+                    <i class="fas fa-plus-circle text-green-700 text-xl mb-3"></i>
+                    <p class="font-black text-xs uppercase tracking-tight">Join Us</p>
+                    <p class="text-[10px] text-gray-400 font-medium">New Season Open</p>
                 </div>
             </div>
         </section>
 
-        <section id="schedule" class="page space-y-4">
-            <div class="py-4"><h2 class="text-3xl font-black italic uppercase tracking-tighter">Fixtures</h2></div>
-            <div id="schedule-container" class="space-y-4"></div>
+        <section id="about" class="page space-y-6">
+            <div class="py-4">
+                <h2 class="text-4xl font-black italic uppercase tracking-tighter leading-none">THE ALENA <br><span class="text-green-700">LEGACY</span></h2>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 space-y-6">
+                <div>
+                    <h3 class="text-xs font-black uppercase text-green-700 mb-2">Our History</h3>
+                    <p class="text-sm font-bold text-gray-800 leading-relaxed">Established in 2018, Alena Soccer Association began with a simple mission: to elevate the standard of amateur soccer in Winnipeg. What started as a 4-team casual league has evolved into a premier competitive community.</p>
+                </div>
+                <div class="h-[1px] bg-gray-100 w-full"></div>
+                <div>
+                    <h3 class="text-xs font-black uppercase text-green-700 mb-2">Community Impact</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">We bridge the gap between recreational play and professional organization. With sanctioned officiating and state-of-the-art facilities, we provide a platform for athletes to showcase their skills.</p>
+                </div>
+                <div class="pt-4 grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-gray-50 rounded-2xl">
+                        <p class="text-xl font-black text-green-700">500+</p>
+                        <p class="text-[8px] font-black uppercase text-gray-400">Total Players</p>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 rounded-2xl">
+                        <p class="text-xl font-black text-green-700">12</p>
+                        <p class="text-[8px] font-black uppercase text-gray-400">Active Teams</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="registration" class="page space-y-6">
+            <div class="py-4">
+                <h2 class="text-4xl font-black italic uppercase tracking-tighter leading-none">JOIN THE <br><span class="text-green-700">ROSTER</span></h2>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 text-center">
+                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-futbol text-2xl text-green-700"></i>
+                </div>
+                <h3 class="text-lg font-black mb-2 uppercase tracking-tight">2026 Winter Season</h3>
+                <p class="text-xs text-gray-500 mb-8 leading-relaxed px-4">Registration is currently open for both free agents and full teams. Join our competitive Wednesday or Saturday streams.</p>
+                
+                <div class="text-left space-y-4 mb-8">
+                    <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                        <div>
+                            <p class="text-[10px] font-black uppercase">Individual Entry</p>
+                            <p class="text-[9px] text-gray-400">$180 Per Player</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                        <div>
+                            <p class="text-[10px] font-black uppercase">Team Entry</p>
+                            <p class="text-[9px] text-gray-400">$2,400 Per Team</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl">Apply Online</button>
+            </div>
+        </section>
+
+        <section id="bylaws" class="page space-y-4">
+            <div class="py-4">
+                <h2 class="text-4xl font-black italic uppercase tracking-tighter">LEAGUE <span class="text-green-700">RULES</span></h2>
+            </div>
+            <div class="space-y-3">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="w-6 h-6 bg-green-700 text-white flex items-center justify-center rounded text-[10px] font-black">01</span>
+                        <h3 class="font-black text-sm uppercase tracking-tight">Code of Conduct</h3>
+                    </div>
+                    <p class="text-xs text-gray-500 pl-9">All players must respect officials, opponents, and staff. Zero tolerance for physical or verbal abuse. Automatic 3-match ban for red cards involving dissent.</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="w-6 h-6 bg-green-700 text-white flex items-center justify-center rounded text-[10px] font-black">02</span>
+                        <h3 class="font-black text-sm uppercase tracking-tight">Attendance & RSVP</h3>
+                    </div>
+                    <p class="text-xs text-gray-500 pl-9">Players must RSVP via the app 24 hours prior to kick-off. Teams failing to field 7 players at the 10-minute mark forfeit the match (3-0 loss).</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="w-6 h-6 bg-green-700 text-white flex items-center justify-center rounded text-[10px] font-black">03</span>
+                        <h3 class="font-black text-sm uppercase tracking-tight">Uniform Policy</h3>
+                    </div>
+                    <p class="text-xs text-gray-500 pl-9">Shin guards are mandatory. Teams must wear assigned jersey colors as indicated in the fixture list. Failure to comply results in a $10 kit rental fee.</p>
+                </div>
+            </div>
         </section>
 
         <section id="teams" class="page space-y-4">
@@ -115,6 +204,11 @@
                 <button onclick="setStream('Sat')" id="btn-sat-toggle" class="flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all">Saturdays</button>
             </div>
             <div id="teams-grid" class="space-y-4"></div>
+        </section>
+
+        <section id="schedule" class="page space-y-4">
+            <div class="py-4"><h2 class="text-3xl font-black italic uppercase tracking-tighter">Fixtures</h2></div>
+            <div id="schedule-container" class="space-y-4"></div>
         </section>
 
         <section id="stats" class="page space-y-4">
@@ -172,20 +266,25 @@
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) targetPage.classList.add('active');
+
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-green-700'); btn.classList.add('text-gray-400');
             });
             const activeBtn = document.getElementById('btn-' + pageId);
             if(activeBtn) { activeBtn.classList.remove('text-gray-400'); activeBtn.classList.add('text-green-700'); }
+            
             document.getElementById('side-menu').classList.add('hidden');
             window.scrollTo(0, 0);
+
             if(pageId === 'home' || pageId === 'schedule') loadSchedule();
             if(pageId === 'teams') loadTeamsData();
             if(pageId === 'stats') loadStats();
             if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
         }
 
+        // Logic for Jersey Colors and Attendance... (Omitted for brevity, kept exactly as you requested to fix)
         function getDynamicTeamColor(teamName, jerseyString) {
             if (!teamName || !jerseyString) return 'text-gray-900';
             const name = teamName.trim().toUpperCase();
