@@ -138,7 +138,7 @@
     </nav>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyf7zg0kNVJmGVy-pisGMBQla0Tr649x_okiAt0fWOkQDC_HkCfg8A1VHZFAnoFEnsU/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyulVe10aCjZBt2A7_78iJdHLetx2r74PBFcxo5yuPkMQPRG6AZz_YY5iCgULKAQov-/exec'; 
         let allPlayersData = []; 
         let currentStream = 'Wed';
 
@@ -359,7 +359,7 @@
 
         async function submitRSVP(status) {
             const gameDate = document.getElementById('next-game-date').innerText;
-            if(gameDate === "No Games Scheduled") return;
+            if(gameDate === "No Games Scheduled" || gameDate === "Loading...") return;
             
             const emailInput = prompt("Enter your email to confirm:");
             if(!emailInput) return;
@@ -373,13 +373,18 @@
             };
 
             try {
+                // Post to Google Script
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify(payload)
                 });
                 alert(`You are marked as ${status.toUpperCase()} for ${gameDate}!`);
-                if(!document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
+                
+                // If on Admin page, refresh roster immediately
+                if(!document.getElementById('admin-dashboard').classList.contains('hidden')) {
+                    setTimeout(loadRoster, 1500); // Small delay to let Sheet process
+                }
             } catch (e) {
                 alert("Submit failed, please try again.");
             }
@@ -399,8 +404,16 @@
             container.innerHTML = '<p class="text-center text-gray-400 py-10">Updating Attendance...</p>';
             
             try {
-                const gamesRes = await fetch(`${SCRIPT_URL}?action=getGames`);
-                const games = await gamesRes.json();
+                const [gRes, pRes, rRes] = await Promise.all([
+                    fetch(`${SCRIPT_URL}?action=getGames`),
+                    fetch(`${SCRIPT_URL}?action=getPlayers`),
+                    fetch(`${SCRIPT_URL}?action=getRSVPs`)
+                ]);
+
+                const games = await gRes.json();
+                const players = await pRes.json();
+                const rsvps = await rRes.json();
+
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);
                 const nextGame = games.find(g => new Date(g.date) >= now);
@@ -411,20 +424,13 @@
                     return;
                 }
 
-                const gameDateStr = formatSafe(nextGame.date);
-                adminLabel.innerText = `Game: ${gameDateStr}`;
+                const gameDateStr = formatSafe(nextGame.date).toLowerCase().trim();
+                adminLabel.innerText = `Game: ${formatSafe(nextGame.date)}`;
 
                 const day = new Date(nextGame.date).getDay(); 
                 const autoStream = (day === 6) ? 'Sat' : 'Wed';
                 const teamField = autoStream === 'Wed' ? 'team wed' : 'team sat';
                 const dayMatch = autoStream === 'Wed' ? 'Wednesday' : 'Saturday';
-
-                const [pRes, rRes] = await Promise.all([
-                    fetch(`${SCRIPT_URL}?action=getPlayers`),
-                    fetch(`${SCRIPT_URL}?action=getRSVPs`)
-                ]);
-                const players = await pRes.json();
-                const rsvps = await rRes.json();
 
                 const teamNames = ["Team A", "Team B", "Team C", "Team D"];
                 
@@ -442,11 +448,12 @@
                             ${playersInTeam.length > 0 ? playersInTeam.map(p => {
                                 const playerEmail = (p.email || p.Email || "").toLowerCase().trim();
                                 
-                                // Find matching RSVP (Matching BOTH Email and Date string)
+                                // FUZZY MATCH LOGIC:
+                                // Check if email matches AND date string (ignoring case/extra spaces)
                                 const userRSVP = rsvps.filter(r => {
-                                    const rsvpEmail = (r.email || r.Email || "").toLowerCase().trim();
-                                    const rsvpDate = (r.gamedate || r.gameDate || r.GameDate || "").trim();
-                                    return rsvpEmail === playerEmail && rsvpDate === gameDateStr;
+                                    const rEmail = (r.email || r.Email || "").toLowerCase().trim();
+                                    const rDate = (r.gamedate || r.gameDate || r.GameDate || "").toLowerCase().trim();
+                                    return rEmail === playerEmail && rDate === gameDateStr;
                                 }).reverse()[0]; 
                                 
                                 const status = userRSVP ? (userRSVP.status || userRSVP.Status) : 'Pending';
