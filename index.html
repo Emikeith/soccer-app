@@ -50,8 +50,8 @@
 
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    <h2 class="text-xs font-extrabold text-green-600 uppercase tracking-widest">Live RSVP</h2>
+                    <span id="rsvp-dot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <h2 id="rsvp-header" class="text-xs font-extrabold text-green-600 uppercase tracking-widest">Live RSVP</h2>
                 </div>
                 <p class="text-2xl font-black text-gray-800" id="next-game-date">Loading...</p>
                 <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
@@ -59,7 +59,7 @@
                 <div id="next-game-matchups" class="mt-4 space-y-2"></div>
                 <div id="next-game-jersey" class="mt-4 text-[10px] font-bold text-green-700 bg-green-50 inline-block px-2 py-1 rounded"></div>
                 
-                <div class="grid grid-cols-2 gap-3 mt-5">
+                <div id="rsvp-controls" class="grid grid-cols-2 gap-3 mt-5">
                     <button onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg active:bg-green-700 transition-all">I'M IN</button>
                     <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-200 transition-all">I'M OUT</button>
                 </div>
@@ -91,9 +91,7 @@
 
         <section id="stats" class="page space-y-4">
             <h2 class="text-2xl font-black italic uppercase tracking-tighter px-1">Top Scorers</h2>
-            <div id="stats-container" class="space-y-3">
-                <p class="text-center text-gray-400 py-10 text-sm">Loading stats...</p>
-            </div>
+            <div id="stats-container" class="space-y-3"></div>
         </section>
 
         <section id="admin" class="page space-y-6">
@@ -190,66 +188,99 @@
 
         function formatSafe(val) {
             if (!val) return 'TBA';
-            if (typeof val === 'string' && val.includes('T')) {
-                const d = new Date(val);
-                if (!isNaN(d) && d.getFullYear() > 1900) return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
-            }
-            return val;
+            let d = new Date(val);
+            if (isNaN(d.getTime())) return val;
+            return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' });
         }
 
         function formatTime(val) {
             if (!val) return 'TBA';
-            if (typeof val === 'string' && val.includes('T')) {
-                const d = new Date(val);
-                if (!isNaN(d)) return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-            }
-            return val;
+            let d = new Date(val);
+            if (isNaN(d.getTime())) return val;
+            return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
         }
 
         async function loadSchedule() {
             const container = document.getElementById('schedule-container');
             const homeMatchups = document.getElementById('next-game-matchups');
+            const rsvpControls = document.getElementById('rsvp-controls');
+            const rsvpHeader = document.getElementById('rsvp-header');
+            const rsvpDot = document.getElementById('rsvp-dot');
+            
             container.innerHTML = '<p class="text-center text-gray-400 py-10">Updating Schedule...</p>';
+            
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getGames`);
                 const games = await res.json();
+                
                 if(games && games.length > 0) {
-                    const firstGame = games[0];
-                    const jerseyInfo = firstGame.jersey || "";
-                    document.getElementById('next-game-date').innerText = formatSafe(firstGame.date);
-                    document.getElementById('next-game-loc').innerText = `${formatTime(firstGame.time)} @ ${firstGame.location || 'TBA'}`;
-                    document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${jerseyInfo || 'TBA'}`;
-                    const matches = (firstGame.matchup || "TBA vs TBA").split(' | ');
-                    homeMatchups.innerHTML = matches.map(m => {
-                        const parts = m.split(' vs ');
-                        const t1 = parts[0] ? parts[0].trim() : 'TBA';
-                        const t2 = parts[1] ? parts[1].trim() : 'TBA';
-                        return `<div class="bg-gray-50 rounded-xl p-2 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                            <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
-                            <span class="text-gray-300 italic px-2 text-[8px]">VS</span>
-                            <span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
-                        </div>`;
-                    }).join('');
-                }
-                container.innerHTML = games.map(g => {
-                    const jerseyInfo = g.jersey || "";
-                    const teams = (g.matchup || "TBA vs TBA").split(' | ');
-                    return `<div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
-                        <div class="flex justify-between items-start mb-3">
-                            <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
-                            <div class="text-right"><p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p></div>
-                        </div>
-                        <div class="space-y-2">${teams.map(t => {
-                            const parts = t.split(' vs ');
+                    // --- AUTOMATIC NEXT GAME LOGIC ---
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0); // Reset time to start of today
+
+                    // Find the first game that is today or in the future
+                    let nextGame = games.find(g => {
+                        let gDate = new Date(g.date);
+                        return gDate >= now;
+                    });
+
+                    if(nextGame) {
+                        const jerseyInfo = nextGame.jersey || "";
+                        document.getElementById('next-game-date').innerText = formatSafe(nextGame.date);
+                        document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} @ ${nextGame.location || 'TBA'}`;
+                        document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${jerseyInfo || 'TBA'}`;
+                        
+                        const matches = (nextGame.matchup || "TBA vs TBA").split(' | ');
+                        homeMatchups.innerHTML = matches.map(m => {
+                            const parts = m.split(' vs ');
                             const t1 = parts[0] ? parts[0].trim() : 'TBA';
                             const t2 = parts[1] ? parts[1].trim() : 'TBA';
-                            return `<div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
+                            return `<div class="bg-gray-50 rounded-xl p-2 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
                                 <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
-                                <span class="text-gray-300 italic px-2">VS</span>
+                                <span class="text-gray-300 italic px-2 text-[8px]">VS</span>
                                 <span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
                             </div>`;
-                        }).join('')}</div>
-                    </div>`}).join('');
+                        }).join('');
+                        
+                        // Ensure RSVP is visible
+                        rsvpControls.style.display = 'grid';
+                        rsvpHeader.innerText = "Live RSVP";
+                        rsvpDot.classList.add('bg-green-500', 'animate-pulse');
+                    } else {
+                        // No future games found
+                        document.getElementById('next-game-date').innerText = "No Games Scheduled";
+                        document.getElementById('next-game-loc').innerText = "Check back soon!";
+                        homeMatchups.innerHTML = "";
+                        document.getElementById('next-game-jersey').innerHTML = "";
+                        
+                        // Hide RSVP controls
+                        rsvpControls.style.display = 'none';
+                        rsvpHeader.innerText = "Off Season";
+                        rsvpDot.classList.remove('bg-green-500', 'animate-pulse');
+                        rsvpDot.classList.add('bg-gray-300');
+                    }
+
+                    // Render the full schedule page normally
+                    container.innerHTML = games.map(g => {
+                        const jerseyInfo = g.jersey || "";
+                        const teams = (g.matchup || "TBA vs TBA").split(' | ');
+                        return `<div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
+                            <div class="flex justify-between items-start mb-3">
+                                <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
+                                <div class="text-right"><p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p></div>
+                            </div>
+                            <div class="space-y-2">${teams.map(t => {
+                                const parts = t.split(' vs ');
+                                const t1 = parts[0] ? parts[0].trim() : 'TBA';
+                                const t2 = parts[1] ? parts[1].trim() : 'TBA';
+                                return `<div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
+                                    <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
+                                    <span class="text-gray-300 italic px-2">VS</span>
+                                    <span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
+                                </div>`;
+                            }).join('')}</div>
+                        </div>`}).join('');
+                }
             } catch(e) { container.innerHTML = 'Error loading games.'; }
         }
 
@@ -263,12 +294,8 @@
 
         function setStream(stream) {
             currentStream = stream;
-            const btnWed = document.getElementById('btn-wed-toggle');
-            const btnSat = document.getElementById('btn-sat-toggle');
-            if(btnWed && btnSat) {
-                btnWed.className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-                btnSat.className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-            }
+            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
             const admWed = document.getElementById('admin-wed-toggle');
             const admSat = document.getElementById('admin-sat-toggle');
             if(admWed && admSat) {
@@ -307,28 +334,18 @@
 
         async function loadStats() {
             const container = document.getElementById('stats-container');
-            container.innerHTML = '<p class="text-center text-gray-400 py-10 text-sm">Fetching Top Scorers...</p>';
+            container.innerHTML = '<p class="text-center text-gray-400 py-10">Fetching Top Scorers...</p>';
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getStats`);
                 let stats = await res.json();
-                
-                // 1. Sort by goals descending
                 stats.sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
-                
-                // 2. Identify max goals for visual bar width
                 const maxGoals = stats.length > 0 ? (parseInt(stats[0].goals) || 1) : 1;
 
                 container.innerHTML = stats.map((s, index) => {
                     const goals = parseInt(s.goals) || 0;
                     const percentage = (goals / maxGoals) * 100;
+                    let rankBadge = index === 0 ? 'bg-yellow-400' : (index === 1 ? 'bg-gray-300' : (index === 2 ? 'bg-orange-400' : 'bg-gray-100'));
                     
-                    // Rank badges for top 3
-                    let rankBadge = '';
-                    if(index === 0) rankBadge = 'bg-yellow-400 text-white';
-                    else if(index === 1) rankBadge = 'bg-gray-300 text-white';
-                    else if(index === 2) rankBadge = 'bg-orange-400 text-white';
-                    else rankBadge = 'bg-gray-100 text-gray-500';
-
                     return `
                     <div class="relative bg-white p-4 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="absolute bottom-0 left-0 h-1 bg-green-500/10" style="width: ${percentage}%"></div>
@@ -349,20 +366,33 @@
                         </div>
                     </div>`;
                 }).join('');
-            } catch(e) { 
-                container.innerHTML = '<p class="text-center text-red-500 py-10">Error loading stats.</p>'; 
-            }
+            } catch(e) { container.innerHTML = 'Error loading stats.'; }
         }
 
         async function submitRSVP(status) {
             const gameDate = document.getElementById('next-game-date').innerText;
+            if(gameDate === "No Games Scheduled") return;
+            
             const email = prompt("Enter your email to confirm:");
             if(!email) return;
-            const payload = { action: 'submitRSVP', email: email, status: status, gameDate: gameDate };
+
+            const payload = {
+                action: 'submitRSVP',
+                email: email,
+                status: status,
+                gameDate: gameDate
+            };
+
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(payload)
+                });
                 alert(`You are marked as ${status.toUpperCase()} for ${gameDate}!`);
-            } catch (e) { alert("Submit failed, please try again."); }
+            } catch (e) {
+                alert("Submit failed, please try again.");
+            }
         }
 
         function checkAdmin() {
@@ -383,11 +413,17 @@
                 ]);
                 const players = await pRes.json();
                 const rsvps = await rRes.json();
+
                 const teamNames = ["Team A", "Team B", "Team C", "Team D"];
                 const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
                 const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
+                
                 container.innerHTML = teamNames.map(team => {
-                    const playersInTeam = players.filter(p => p[teamField] === team && (p.stream === dayMatch || p.stream === 'Both'));
+                    const playersInTeam = players.filter(p => 
+                        p[teamField] === team && 
+                        (p.stream === dayMatch || p.stream === 'Both')
+                    );
+
                     return `
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gray-900 text-white px-5 py-3 flex justify-between items-center">
@@ -399,6 +435,7 @@
                                 const userRSVP = rsvps.filter(r => (r.email || r.Email || "").toLowerCase().trim() === playerEmail).reverse()[0];
                                 const status = userRSVP ? userRSVP.status || userRSVP.Status : 'Pending';
                                 const color = status === 'In' ? 'text-green-600 bg-green-50' : (status === 'Out' ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50');
+
                                 return `
                                 <div class="p-4 flex justify-between items-center">
                                     <span class="font-bold text-sm">${p.name || p.Name}</span>
@@ -408,7 +445,8 @@
                         </div>
                     </div>`;
                 }).join('');
-            } catch(e) { container.innerHTML = '<p class="text-center text-red-500">Failed to load attendance.</p>'; }
+
+            } catch(e) { container.innerHTML = 'Error.'; }
         }
 
         window.onload = loadSchedule;
