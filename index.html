@@ -7,11 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Hide scrollbar for Chrome, Safari and Opera */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .page { display: none; }
         .page.active { display: block; }
+        .nav-btn.active { color: #15803d; } /* green-700 */
     </style>
 </head>
 <body class="bg-gray-50 font-sans pb-24 text-gray-900">
@@ -66,8 +66,8 @@
                 <p class="text-sm text-gray-500 font-medium mt-1" id="next-game-loc">Please wait...</p>
                 
                 <div class="grid grid-cols-2 gap-3 mt-5">
-                    <button onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 active:bg-green-700 transition-all">I'M IN</button>
-                    <button onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-200 transition-all">I'M OUT</button>
+                    <button id="btn-rsvp-in" onclick="submitRSVP('In')" class="bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-200 active:bg-green-700 transition-all disabled:opacity-50">I'M IN</button>
+                    <button id="btn-rsvp-out" onclick="submitRSVP('Out')" class="bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold active:bg-gray-200 transition-all disabled:opacity-50">I'M OUT</button>
                 </div>
             </div>
         </section>
@@ -85,7 +85,6 @@
                 </select>
             </div>
 
-            <!-- STREAM TOGGLE -->
             <div class="flex bg-gray-100 p-1 rounded-xl mb-4">
                 <button onclick="setStream('Wed')" id="btn-wed-toggle" class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all">Wednesday</button>
                 <button onclick="setStream('Sat')" id="btn-sat-toggle" class="flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all">Saturday</button>
@@ -100,7 +99,7 @@
         <section id="schedule" class="page space-y-4">
             <h2 class="text-2xl font-bold italic uppercase tracking-tighter">Game Schedule</h2>
             <div id="schedule-container" class="space-y-4">
-                <p class="text-center text-gray-400 py-10">Loading games from sheet...</p>
+                <p class="text-center text-gray-400 py-10">Loading games...</p>
             </div>
         </section>
 
@@ -139,12 +138,17 @@
         </section>
     </main>
 
-    <!-- ASSIGNMENT MODAL -->
+    <!-- MODAL -->
     <div id="edit-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-xs rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 id="modal-player-name" class="font-black text-xl text-gray-800">Assign Team</h3>
             <input type="hidden" id="modal-player-email">
             
+            <div class="flex bg-gray-100 p-1 rounded-xl mb-2">
+                <button id="modal-btn-wed" onclick="setModalStream('Wed')" class="flex-1 py-1 text-[9px] font-black uppercase rounded-lg bg-white shadow-sm transition-all">Wed</button>
+                <button id="modal-btn-sat" onclick="setModalStream('Sat')" class="flex-1 py-1 text-[9px] font-black uppercase text-gray-400 transition-all">Sat</button>
+            </div>
+
             <div>
                 <label class="text-[10px] font-bold text-gray-400 uppercase">Select Team</label>
                 <select id="modal-team" class="w-full p-4 bg-gray-100 rounded-2xl mt-1 font-bold outline-none border-none">
@@ -163,7 +167,7 @@
         </div>
     </div>
 
-    <!-- BOTTOM TAB NAVIGATION -->
+    <!-- BOTTOM NAV -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center p-3 z-50 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
         <button onclick="showPage('home')" id="btn-home" class="nav-btn flex flex-col items-center gap-1 text-green-600">
             <i class="fas fa-home text-xl"></i>
@@ -188,21 +192,22 @@
     </nav>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBXK5rLPi0-0ApL5CJImun-gwI0MeleiFbc5Vo08oZEC5kwIDrAIIONbLb4sbSTKi7/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEq4NHzx0FCGQnTGbdfKZpjVhOa6-zIUcoPpUMdW0XyAT2MJyn62M7tKo_aE58u1uL/exec'; 
         let allPlayersData = []; 
-        let currentStream = 'Wed'; // Updated to match Sheet Column
+        let currentStream = 'Wed';
+        let modalStream = 'Wed'; // For targeted manager updates
 
-        function toggleMenu() {
-            document.getElementById('side-menu').classList.toggle('hidden');
-        }
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('hidden'); }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-600', 'text-gray-400'));
-            const currentNavBtn = document.getElementById('btn-' + pageId);
-            if(currentNavBtn) currentNavBtn.classList.replace('text-gray-400', 'text-green-600');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-green-600');
+                btn.classList.add('text-gray-400');
+            });
+            document.getElementById('btn-' + pageId).classList.replace('text-gray-400', 'text-green-600');
             
             document.getElementById('side-menu').classList.add('hidden');
             window.scrollTo(0, 0);
@@ -210,12 +215,11 @@
             if(pageId === 'teams') loadTeamsData();
             if(pageId === 'schedule') loadSchedule();
             if(pageId === 'stats') loadStats();
-            if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
         }
 
         async function loadTeamsData() {
             try {
-                const res = await fetch(SCRIPT_URL + "?action=getPlayers");
+                const res = await fetch(`${SCRIPT_URL}?action=getPlayers`);
                 allPlayersData = await res.json();
                 renderTeams();
             } catch(e) { console.error("Error loading teams", e); }
@@ -223,16 +227,8 @@
 
         function setStream(stream) {
             currentStream = stream;
-            const wedBtn = document.getElementById('btn-wed-toggle');
-            const satBtn = document.getElementById('btn-sat-toggle');
-
-            if(stream === 'Wed') {
-                wedBtn.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all";
-                satBtn.className = "flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all";
-            } else {
-                satBtn.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all";
-                wedBtn.className = "flex-1 py-2 text-[10px] font-black uppercase text-gray-400 transition-all";
-            }
+            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
             renderTeams();
         }
 
@@ -241,110 +237,97 @@
             const container = document.getElementById('teams-grid');
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
             const teamField = currentStream === 'Wed' ? 'Team Wed' : 'Team Sat';
-            let html = '';
-
-            teamNames.forEach(teamName => {
-                if (filter !== "All" && filter !== teamName) return;
+            
+            container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
                 const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName);
-                
-                html += `
+                return `
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
                             <div>
                                 <span class="font-black text-gray-800 uppercase italic tracking-tighter">${teamName}</span>
-                                <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${currentStream === 'Wed' ? 'Wednesday' : 'Saturday'} League</p>
+                                <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${currentStream === 'Wed' ? 'Wednesday' : 'Saturday'}</p>
                             </div>
-                            <span class="text-[10px] font-black text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase tracking-widest">${teamPlayers.length} Members</span>
+                            <span class="text-[10px] font-black text-green-600 bg-green-50 px-3 py-1 rounded-full">${teamPlayers.length} Members</span>
                         </div>
                         <div class="divide-y divide-gray-50">
                             ${teamPlayers.length > 0 ? teamPlayers.map(p => `
                                 <div class="p-4 flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-sm font-black text-gray-300 border border-gray-100">${(p.Name || "?").charAt(0)}</div>
+                                    <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-sm font-black text-gray-300 border border-gray-100">${(p.Name || "U").charAt(0)}</div>
                                     <div>
-                                        <p class="font-bold text-gray-800 text-sm">${p.Name || 'Unknown'}</p>
+                                        <p class="font-bold text-gray-800 text-sm">${p.Name}</p>
                                         <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">${p.Role || 'Player'}</p>
                                     </div>
                                 </div>
-                            `).join('') : '<p class="p-6 text-xs text-gray-400 italic text-center uppercase tracking-widest font-bold">No Players Assigned</p>'}
+                            `).join('') : '<p class="p-6 text-xs text-gray-400 italic text-center font-bold">No Players Assigned</p>'}
                         </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
+                    </div>`;
+            }).join('');
         }
 
         async function loadSchedule() {
             try {
-                const res = await fetch(SCRIPT_URL + "?action=getGames");
+                const res = await fetch(`${SCRIPT_URL}?action=getGames`);
                 const games = await res.json();
                 const container = document.getElementById('schedule-container');
                 container.innerHTML = games.map(g => `
-                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100 relative overflow-hidden">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
                         <div class="flex justify-between items-start mb-3">
-                            <div><p class="text-lg font-black text-gray-800">${g.date}</p></div>
-                            <div class="text-right">
-                                <p class="text-xs font-bold text-gray-400">${g.time}</p>
-                                <p class="text-[10px] font-medium text-gray-400">${g.location}</p>
+                            <p class="text-lg font-black text-gray-800">${g.Date || g.date}</p>
+                            <div class="text-right text-gray-400">
+                                <p class="text-xs font-bold">${g.Time || g.time}</p>
+                                <p class="text-[10px]">${g.Location || g.location}</p>
                             </div>
                         </div>
-                        <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100 font-black text-xs">
-                            <span>${g.matchup.split(' vs ')[0]}</span>
+                        <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-around border border-gray-100 font-black text-xs uppercase">
+                            <span>${(g.Matchup || g.matchup || "TBA").split(' vs ')[0]}</span>
                             <span class="text-gray-300 italic">VS</span>
-                            <span>${g.matchup.split(' vs ')[1]}</span>
+                            <span>${(g.Matchup || g.matchup || "TBA").split(' vs ')[1] || "TBA"}</span>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`).join('');
                 if(games[0]) {
-                    document.getElementById('next-game-date').innerText = games[0].date;
-                    document.getElementById('next-game-loc').innerText = `${games[0].matchup} • ${games[0].location}`;
+                    document.getElementById('next-game-date').innerText = games[0].Date || games[0].date;
+                    document.getElementById('next-game-loc').innerText = `${games[0].Matchup || games[0].matchup} • ${games[0].Location || games[0].location}`;
                 }
-            } catch(e) { console.error("Error loading schedule", e); }
+            } catch(e) { console.error(e); }
         }
 
         async function submitRSVP(status) {
+            const date = document.getElementById('next-game-date').innerText;
             const email = prompt("Enter email to confirm RSVP:");
             if(!email) return;
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'submitRSVP', email: email, status: status }) });
+            
+            const btnIn = document.getElementById('btn-rsvp-in');
+            const btnOut = document.getElementById('btn-rsvp-out');
+            btnIn.disabled = btnOut.disabled = true;
+
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'submitRSVP', email, status, gameDate: date }) });
             alert("RSVP Recorded!");
+            btnIn.disabled = btnOut.disabled = false;
         }
 
-        async function registerNewPlayer() {
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            if(!name || !email) return alert("Fields required");
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'registerPlayer', name: name, email: email }) });
-            alert("Player added!");
-            loadRoster();
-        }
-
-        async function loadStats() {
-            const res = await fetch(SCRIPT_URL + "?action=getStats");
-            const stats = await res.json();
-            document.getElementById('stats-container').innerHTML = stats.map(s => `
-                <div class="p-4 flex justify-between"><span>${s.player}</span> <span class="font-bold">${s.goals}</span></div>
-            `).join('');
+        // MANAGER FUNCTIONS
+        function setModalStream(stream) {
+            modalStream = stream;
+            document.getElementById('modal-btn-wed').className = stream === 'Wed' ? "flex-1 py-1 text-[9px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-1 text-[9px] font-black uppercase text-gray-400";
+            document.getElementById('modal-btn-sat').className = stream === 'Sat' ? "flex-1 py-1 text-[9px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-1 text-[9px] font-black uppercase text-gray-400";
         }
 
         async function loadRoster() {
-            const res = await fetch(SCRIPT_URL + "?action=getPlayers");
+            const res = await fetch(`${SCRIPT_URL}?action=getPlayers`);
             const players = await res.json();
             document.getElementById('roster-container').innerHTML = players.map(p => `
                 <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50">
                     <div>
                         <p class="font-bold">${p.Name}</p>
-                        <p class="text-[10px] text-gray-400 uppercase font-black">
-                            WED: ${p['Team Wed'] || 'None'} | SAT: ${p['Team Sat'] || 'None'}
-                        </p>
+                        <p class="text-[9px] text-gray-400 uppercase font-black">W: ${p['Team Wed'] || 'None'} | S: ${p['Team Sat'] || 'None'}</p>
                     </div>
-                    <button onclick="openEditModal('${p.Name}', '${p.Email}', '${p['Team Wed']}')" class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg bg-green-50">Manage</button>
-                </div>
-            `).join('');
+                    <button onclick="openEditModal('${p.Name}', '${p.Email}')" class="text-green-600 font-bold text-xs border border-green-200 px-3 py-1 rounded-lg">Manage</button>
+                </div>`).join('');
         }
 
-        function openEditModal(name, email, team) {
+        function openEditModal(name, email) {
             document.getElementById('modal-player-name').innerText = name;
             document.getElementById('modal-player-email').value = email;
-            document.getElementById('modal-team').value = team;
             document.getElementById('edit-modal').classList.remove('hidden');
         }
 
@@ -353,9 +336,9 @@
         async function savePlayerUpdate() {
             const email = document.getElementById('modal-player-email').value;
             const team = document.getElementById('modal-team').value;
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'updatePlayer', email: email, team: team }) });
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'updatePlayer', email, team, stream: modalStream }) });
             closeModal();
-            setTimeout(loadRoster, 500);
+            setTimeout(loadRoster, 800);
         }
 
         function checkAdmin() {
