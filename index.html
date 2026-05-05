@@ -164,6 +164,7 @@
             document.getElementById('side-menu').classList.add('hidden');
             window.scrollTo(0, 0);
 
+            if(pageId === 'home') loadSchedule();
             if(pageId === 'teams') loadTeamsData();
             if(pageId === 'schedule') loadSchedule();
             if(pageId === 'stats') loadStats();
@@ -207,27 +208,26 @@
             const rsvpHeader = document.getElementById('rsvp-header');
             const rsvpDot = document.getElementById('rsvp-dot');
             
-            container.innerHTML = '<p class="text-center text-gray-400 py-10">Updating Schedule...</p>';
+            if(container) container.innerHTML = '<p class="text-center text-gray-400 py-10">Updating Schedule...</p>';
             
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getGames`);
                 const games = await res.json();
                 
                 if(games && games.length > 0) {
-                    // --- AUTOMATIC NEXT GAME LOGIC ---
                     const now = new Date();
-                    now.setHours(0, 0, 0, 0); // Reset time to start of today
+                    now.setHours(0, 0, 0, 0);
 
-                    // Find the first game that is today or in the future
                     let nextGame = games.find(g => {
                         let gDate = new Date(g.date);
                         return gDate >= now;
                     });
 
                     if(nextGame) {
+                        const loc = nextGame.location || nextGame.Location || nextGame.venue || nextGame.Venue || 'TBA';
                         const jerseyInfo = nextGame.jersey || "";
                         document.getElementById('next-game-date').innerText = formatSafe(nextGame.date);
-                        document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} @ ${nextGame.location || 'TBA'}`;
+                        document.getElementById('next-game-loc').innerText = `${formatTime(nextGame.time)} @ ${loc}`;
                         document.getElementById('next-game-jersey').innerHTML = `<i class="fas fa-tshirt mr-1"></i> Jersey: ${jerseyInfo || 'TBA'}`;
                         
                         const matches = (nextGame.matchup || "TBA vs TBA").split(' | ');
@@ -242,46 +242,45 @@
                             </div>`;
                         }).join('');
                         
-                        // Ensure RSVP is visible
                         rsvpControls.style.display = 'grid';
                         rsvpHeader.innerText = "Live RSVP";
                         rsvpDot.classList.add('bg-green-500', 'animate-pulse');
                     } else {
-                        // No future games found
                         document.getElementById('next-game-date').innerText = "No Games Scheduled";
                         document.getElementById('next-game-loc').innerText = "Check back soon!";
                         homeMatchups.innerHTML = "";
                         document.getElementById('next-game-jersey').innerHTML = "";
-                        
-                        // Hide RSVP controls
                         rsvpControls.style.display = 'none';
                         rsvpHeader.innerText = "Off Season";
                         rsvpDot.classList.remove('bg-green-500', 'animate-pulse');
                         rsvpDot.classList.add('bg-gray-300');
                     }
 
-                    // Render the full schedule page normally
-                    container.innerHTML = games.map(g => {
-                        const jerseyInfo = g.jersey || "";
-                        const teams = (g.matchup || "TBA vs TBA").split(' | ');
-                        return `<div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
-                            <div class="flex justify-between items-start mb-3">
-                                <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
-                                <div class="text-right"><p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p></div>
-                            </div>
-                            <div class="space-y-2">${teams.map(t => {
-                                const parts = t.split(' vs ');
-                                const t1 = parts[0] ? parts[0].trim() : 'TBA';
-                                const t2 = parts[1] ? parts[1].trim() : 'TBA';
-                                return `<div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
-                                    <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
-                                    <span class="text-gray-300 italic px-2">VS</span>
-                                    <span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
-                                </div>`;
-                            }).join('')}</div>
-                        </div>`}).join('');
+                    if(container) {
+                        container.innerHTML = games.map(g => {
+                            const loc = g.location || g.Location || g.venue || g.Venue || 'TBA';
+                            const jerseyInfo = g.jersey || "";
+                            const teams = (g.matchup || "TBA vs TBA").split(' | ');
+                            return `<div class="bg-white p-5 rounded-3xl shadow-sm border border-green-100">
+                                <div class="flex justify-between items-start mb-1">
+                                    <p class="text-lg font-black text-gray-800">${formatSafe(g.date)}</p>
+                                    <div class="text-right"><p class="text-xs font-bold text-green-700">${formatTime(g.time)}</p></div>
+                                </div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase mb-3"><i class="fas fa-map-marker-alt mr-1"></i> ${loc}</p>
+                                <div class="space-y-2">${teams.map(t => {
+                                    const parts = t.split(' vs ');
+                                    const t1 = parts[0] ? parts[0].trim() : 'TBA';
+                                    const t2 = parts[1] ? parts[1].trim() : 'TBA';
+                                    return `<div class="bg-gray-50 rounded-2xl p-3 flex items-center justify-around border border-gray-100 font-black text-[10px] uppercase tracking-tighter">
+                                        <span class="${getDynamicTeamColor(t1, jerseyInfo)}">${t1}</span>
+                                        <span class="text-gray-300 italic px-2">VS</span>
+                                        <span class="${getDynamicTeamColor(t2, jerseyInfo)}">${t2}</span>
+                                    </div>`;
+                                }).join('')}</div>
+                            </div>`}).join('');
+                    }
                 }
-            } catch(e) { container.innerHTML = 'Error loading games.'; }
+            } catch(e) { if(container) container.innerHTML = 'Error loading games.'; }
         }
 
         async function loadTeamsData() {
@@ -346,14 +345,11 @@
                     const percentage = (goals / maxGoals) * 100;
                     let rankBadge = index === 0 ? 'bg-yellow-400' : (index === 1 ? 'bg-gray-300' : (index === 2 ? 'bg-orange-400' : 'bg-gray-100'));
                     
-                    return `
-                    <div class="relative bg-white p-4 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    return `<div class="relative bg-white p-4 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="absolute bottom-0 left-0 h-1 bg-green-500/10" style="width: ${percentage}%"></div>
                         <div class="flex justify-between items-center relative z-10">
                             <div class="flex items-center gap-4">
-                                <span class="w-6 h-6 ${rankBadge} flex items-center justify-center rounded-full text-[10px] font-black">
-                                    ${index + 1}
-                                </span>
+                                <span class="w-6 h-6 ${rankBadge} flex items-center justify-center rounded-full text-[10px] font-black">${index + 1}</span>
                                 <div>
                                     <p class="font-black text-gray-800 uppercase tracking-tight text-sm">${s.name || s.player || 'Unknown'}</p>
                                     <p class="text-[9px] font-bold text-gray-400 uppercase">${s.team || 'Active Player'}</p>
@@ -378,7 +374,7 @@
 
             const payload = {
                 action: 'submitRSVP',
-                email: email,
+                email: email.toLowerCase().trim(),
                 status: status,
                 gameDate: gameDate
             };
@@ -424,10 +420,9 @@
                         (p.stream === dayMatch || p.stream === 'Both')
                     );
 
-                    return `
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    return `<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-4">
                         <div class="bg-gray-900 text-white px-5 py-3 flex justify-between items-center">
-                            <span class="font-black italic text-sm uppercase">${team} - ${currentStream}</span>
+                            <span class="font-black italic text-sm uppercase">${team}</span>
                         </div>
                         <div class="divide-y divide-gray-50">
                             ${playersInTeam.length > 0 ? playersInTeam.map(p => {
@@ -436,8 +431,7 @@
                                 const status = userRSVP ? userRSVP.status || userRSVP.Status : 'Pending';
                                 const color = status === 'In' ? 'text-green-600 bg-green-50' : (status === 'Out' ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50');
 
-                                return `
-                                <div class="p-4 flex justify-between items-center">
+                                return `<div class="p-4 flex justify-between items-center">
                                     <span class="font-bold text-sm">${p.name || p.Name}</span>
                                     <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${color}">${status}</span>
                                 </div>`;
