@@ -89,9 +89,11 @@
             <div id="schedule-container" class="space-y-4"></div>
         </section>
 
-        <section id="stats" class="page">
-            <h2 class="text-2xl font-bold mb-4">Top Scorers</h2>
-            <div id="stats-container" class="space-y-2"></div>
+        <section id="stats" class="page space-y-4">
+            <h2 class="text-2xl font-black italic uppercase tracking-tighter px-1">Top Scorers</h2>
+            <div id="stats-container" class="space-y-3">
+                <p class="text-center text-gray-400 py-10 text-sm">Loading stats...</p>
+            </div>
         </section>
 
         <section id="admin" class="page space-y-6">
@@ -261,17 +263,18 @@
 
         function setStream(stream) {
             currentStream = stream;
-            // Update UI for Teams Page
-            document.getElementById('btn-wed-toggle').className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-            document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
-            // Update UI for Admin Page
+            const btnWed = document.getElementById('btn-wed-toggle');
+            const btnSat = document.getElementById('btn-sat-toggle');
+            if(btnWed && btnSat) {
+                btnWed.className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+                btnSat.className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm transition-all" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
+            }
             const admWed = document.getElementById('admin-wed-toggle');
             const admSat = document.getElementById('admin-sat-toggle');
             if(admWed && admSat) {
                 admWed.className = stream === 'Wed' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
                 admSat.className = stream === 'Sat' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm" : "flex-1 py-2 text-[10px] font-black uppercase text-gray-400";
             }
-            
             renderTeams();
             if(!document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
         }
@@ -280,18 +283,14 @@
             const filter = document.getElementById('team-filter').value;
             const container = document.getElementById('teams-grid');
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
-            
-            // Logic for day filtering
             const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
             const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
             
             container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
-                // FILTER: Only show players if assigned to this team AND their stream matches this day (or 'Both')
                 const teamPlayers = allPlayersData.filter(p => 
                     p[teamField] === teamName && 
                     (p.stream === dayMatch || p.stream === 'Both')
                 );
-
                 return `<div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
                         <span class="font-black text-gray-800 uppercase italic tracking-tighter">${teamName}</span>
@@ -308,35 +307,62 @@
 
         async function loadStats() {
             const container = document.getElementById('stats-container');
+            container.innerHTML = '<p class="text-center text-gray-400 py-10 text-sm">Fetching Top Scorers...</p>';
             try {
                 const res = await fetch(`${SCRIPT_URL}?action=getStats`);
-                const stats = await res.json();
-                container.innerHTML = stats.map(s => `<div class="bg-white p-4 rounded-xl flex justify-between shadow-sm border"><span class="font-bold">${s.name || s.player}</span><span class="text-green-600 font-black">${s.goals || 0} Goals</span></div>`).join('');
-            } catch(e) { container.innerHTML = 'Error loading stats.'; }
+                let stats = await res.json();
+                
+                // 1. Sort by goals descending
+                stats.sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
+                
+                // 2. Identify max goals for visual bar width
+                const maxGoals = stats.length > 0 ? (parseInt(stats[0].goals) || 1) : 1;
+
+                container.innerHTML = stats.map((s, index) => {
+                    const goals = parseInt(s.goals) || 0;
+                    const percentage = (goals / maxGoals) * 100;
+                    
+                    // Rank badges for top 3
+                    let rankBadge = '';
+                    if(index === 0) rankBadge = 'bg-yellow-400 text-white';
+                    else if(index === 1) rankBadge = 'bg-gray-300 text-white';
+                    else if(index === 2) rankBadge = 'bg-orange-400 text-white';
+                    else rankBadge = 'bg-gray-100 text-gray-500';
+
+                    return `
+                    <div class="relative bg-white p-4 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="absolute bottom-0 left-0 h-1 bg-green-500/10" style="width: ${percentage}%"></div>
+                        <div class="flex justify-between items-center relative z-10">
+                            <div class="flex items-center gap-4">
+                                <span class="w-6 h-6 ${rankBadge} flex items-center justify-center rounded-full text-[10px] font-black">
+                                    ${index + 1}
+                                </span>
+                                <div>
+                                    <p class="font-black text-gray-800 uppercase tracking-tight text-sm">${s.name || s.player || 'Unknown'}</p>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase">${s.team || 'Active Player'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xl font-black text-green-600">${goals}</span>
+                                <span class="text-[8px] font-black text-gray-400 uppercase block leading-none">Goals</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch(e) { 
+                container.innerHTML = '<p class="text-center text-red-500 py-10">Error loading stats.</p>'; 
+            }
         }
 
         async function submitRSVP(status) {
             const gameDate = document.getElementById('next-game-date').innerText;
             const email = prompt("Enter your email to confirm:");
             if(!email) return;
-
-            const payload = {
-                action: 'submitRSVP',
-                email: email,
-                status: status,
-                gameDate: gameDate
-            };
-
+            const payload = { action: 'submitRSVP', email: email, status: status, gameDate: gameDate };
             try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(payload)
-                });
+                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 alert(`You are marked as ${status.toUpperCase()} for ${gameDate}!`);
-            } catch (e) {
-                alert("Submit failed, please try again.");
-            }
+            } catch (e) { alert("Submit failed, please try again."); }
         }
 
         function checkAdmin() {
@@ -350,7 +376,6 @@
         async function loadRoster() {
             const container = document.getElementById('roster-container');
             container.innerHTML = '<p class="text-center text-gray-400 py-10">Refreshing attendance...</p>';
-            
             try {
                 const [pRes, rRes] = await Promise.all([
                     fetch(`${SCRIPT_URL}?action=getPlayers`),
@@ -358,18 +383,11 @@
                 ]);
                 const players = await pRes.json();
                 const rsvps = await rRes.json();
-
                 const teamNames = ["Team A", "Team B", "Team C", "Team D"];
                 const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
                 const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
-                
                 container.innerHTML = teamNames.map(team => {
-                    // Apply same day/stream logic to Admin view
-                    const playersInTeam = players.filter(p => 
-                        p[teamField] === team && 
-                        (p.stream === dayMatch || p.stream === 'Both')
-                    );
-
+                    const playersInTeam = players.filter(p => p[teamField] === team && (p.stream === dayMatch || p.stream === 'Both'));
                     return `
                     <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="bg-gray-900 text-white px-5 py-3 flex justify-between items-center">
@@ -381,7 +399,6 @@
                                 const userRSVP = rsvps.filter(r => (r.email || r.Email || "").toLowerCase().trim() === playerEmail).reverse()[0];
                                 const status = userRSVP ? userRSVP.status || userRSVP.Status : 'Pending';
                                 const color = status === 'In' ? 'text-green-600 bg-green-50' : (status === 'Out' ? 'text-red-600 bg-red-50' : 'text-gray-400 bg-gray-50');
-
                                 return `
                                 <div class="p-4 flex justify-between items-center">
                                     <span class="font-bold text-sm">${p.name || p.Name}</span>
@@ -391,10 +408,7 @@
                         </div>
                     </div>`;
                 }).join('');
-
-            } catch(e) {
-                container.innerHTML = '<p class="text-center text-red-500">Failed to load attendance.</p>';
-            }
+            } catch(e) { container.innerHTML = '<p class="text-center text-red-500">Failed to load attendance.</p>'; }
         }
 
         window.onload = loadSchedule;
