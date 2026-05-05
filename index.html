@@ -14,7 +14,7 @@
         .page.active { display: block; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans pb-20 text-gray-900">
+<body class="bg-gray-50 font-sans pb-24 text-gray-900">
 
     <!-- TOP NAVIGATION -->
     <header class="bg-green-700 text-white p-4 sticky top-0 z-50 shadow-md">
@@ -35,6 +35,8 @@
             </div>
             <nav class="flex flex-col space-y-4 font-medium">
                 <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('home')"><i class="fas fa-home w-6"></i> Home</a>
+                <!-- Added Team View to side menu -->
+                <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('teams')"><i class="fas fa-users w-6"></i> Teams</a>
                 <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('schedule')"><i class="fas fa-calendar-alt w-6"></i> Schedule</a>
                 <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('stats')"><i class="fas fa-chart-bar w-6"></i> Statistics</a>
                 <a href="#" class="flex items-center gap-3 py-2" onclick="showPage('admin')"><i class="fas fa-user-shield w-6"></i> Manager Login</a>
@@ -71,6 +73,23 @@
             </div>
         </section>
 
+        <!-- PAGE: TEAMS VIEW (NEW) -->
+        <section id="teams" class="page space-y-4">
+            <div class="flex justify-between items-center px-1">
+                <h2 class="text-2xl font-black uppercase italic tracking-tight">Teams</h2>
+                <select id="team-filter" onchange="renderTeams()" class="bg-white border-none text-[10px] font-black uppercase tracking-widest text-green-700 outline-none">
+                    <option value="All">All Rosters</option>
+                    <option value="Team A">Team A</option>
+                    <option value="Team B">Team B</option>
+                    <option value="Team C">Team C</option>
+                    <option value="Team D">Team D</option>
+                </select>
+            </div>
+            <div id="teams-grid" class="space-y-4">
+                <p class="text-center text-gray-400 py-10">Loading rosters...</p>
+            </div>
+        </section>
+
         <!-- PAGE: SCHEDULE -->
         <section id="schedule" class="page space-y-4">
             <h2 class="text-2xl font-bold">Game Schedule</h2>
@@ -103,10 +122,7 @@
             </div>
 
             <div id="admin-dashboard" class="hidden space-y-6">
-                <!-- Live Balance Overview -->
-                <div id="team-balance-overview" class="grid grid-cols-2 gap-2 text-center text-[10px] font-bold uppercase tracking-tight">
-                    <!-- JS will fill this -->
-                </div>
+                <div id="team-balance-overview" class="grid grid-cols-2 gap-2 text-center text-[10px] font-bold uppercase tracking-tight"></div>
 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border space-y-4">
                     <h3 class="text-sm font-bold text-gray-400 uppercase">Add New Player</h3>
@@ -115,14 +131,12 @@
                     <button onclick="registerNewPlayer()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Add to Roster</button>
                 </div>
                 
-                <div id="roster-container" class="space-y-2">
-                    <!-- Players will load here -->
-                </div>
+                <div id="roster-container" class="space-y-2"></div>
             </div>
         </section>
     </main>
 
-    <!-- ASSIGNMENT MODAL (POPUP) -->
+    <!-- ASSIGNMENT MODAL -->
     <div id="edit-modal" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-xs rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 id="modal-player-name" class="font-black text-xl text-gray-800">Assign Team</h3>
@@ -152,6 +166,11 @@
             <i class="fas fa-home text-xl"></i>
             <span class="text-[10px] font-bold">Home</span>
         </button>
+        <!-- Added Team View to bottom nav -->
+        <button onclick="showPage('teams')" id="btn-teams" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
+            <i class="fas fa-users text-xl"></i>
+            <span class="text-[10px] font-bold">Teams</span>
+        </button>
         <button onclick="showPage('schedule')" id="btn-schedule" class="nav-btn flex flex-col items-center gap-1 text-gray-400">
             <i class="fas fa-calendar-alt text-xl"></i>
             <span class="text-[10px] font-bold">Schedule</span>
@@ -168,6 +187,7 @@
 
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylqbNydbvOsStKOXgVJ0FBYUjlnQsuLzmWi8rHWNR2kOOpdGclZiSq_ani-CJOv3E/exec';
+        let allPlayersData = []; // Global storage for team view filtering
 
         function toggleMenu() {
             const menu = document.getElementById('side-menu');
@@ -179,16 +199,59 @@
             document.getElementById(pageId).classList.add('active');
             
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-600', 'text-gray-400'));
-            document.getElementById('btn-' + pageId).classList.replace('text-gray-400', 'text-green-600');
+            const currentNavBtn = document.getElementById('btn-' + pageId);
+            if(currentNavBtn) currentNavBtn.classList.replace('text-gray-400', 'text-green-600');
             
             document.getElementById('side-menu').classList.add('hidden');
             window.scrollTo(0, 0);
 
+            if(pageId === 'teams') loadTeamsData();
             if(pageId === 'schedule') loadSchedule();
             if(pageId === 'stats') loadStats();
             if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
         }
 
+        // --- TEAMS VIEW LOGIC ---
+        async function loadTeamsData() {
+            const res = await fetch(SCRIPT_URL + "?action=getPlayers");
+            allPlayersData = await res.json();
+            renderTeams();
+        }
+
+        function renderTeams() {
+            const filter = document.getElementById('team-filter').value;
+            const container = document.getElementById('teams-grid');
+            const teamNames = ["Team A", "Team B", "Team C", "Team D"];
+            let html = '';
+
+            teamNames.forEach(teamName => {
+                if (filter !== "All" && filter !== teamName) return;
+                const teamPlayers = allPlayersData.filter(p => p.team === teamName);
+                
+                html += `
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-50 flex justify-between items-center">
+                            <span class="font-black text-gray-800 uppercase italic tracking-tighter">${teamName}</span>
+                            <span class="text-[10px] font-black text-green-600 bg-green-50 px-3 py-1 rounded-full uppercase tracking-widest">${teamPlayers.length} Members</span>
+                        </div>
+                        <div class="divide-y divide-gray-50">
+                            ${teamPlayers.length > 0 ? teamPlayers.map(p => `
+                                <div class="p-4 flex items-center gap-4">
+                                    <div class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-sm font-black text-gray-300 border border-gray-100">${p.name.charAt(0)}</div>
+                                    <div>
+                                        <p class="font-bold text-gray-800 text-sm">${p.name}</p>
+                                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">${p.role || 'Player'}</p>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="p-6 text-xs text-gray-400 italic text-center uppercase tracking-widest font-bold">Roster Pending</p>'}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- EXISTING LOGIC ---
         async function submitRSVP(status) {
             const email = prompt("Enter email to confirm RSVP:");
             if(!email) return;
@@ -240,13 +303,10 @@
             `).join('');
         }
 
-        // --- NEW MANAGEMENT FUNCTIONS ---
-
         async function loadRoster() {
             const res = await fetch(SCRIPT_URL + "?action=getPlayers");
             const players = await res.json();
             
-            // Calculate Team Balance for the overview
             const counts = { "Team A": 0, "Team B": 0, "Team C": 0, "Team D": 0 };
             players.forEach(p => { if(counts[p.team] !== undefined) counts[p.team]++; });
             
@@ -257,7 +317,6 @@
                 </div>
             `).join('');
 
-            // Render Roster List
             document.getElementById('roster-container').innerHTML = players.map(p => `
                 <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm border border-gray-50">
                     <div>
@@ -286,7 +345,6 @@
             const email = document.getElementById('modal-player-email').value;
             const team = document.getElementById('modal-team').value;
 
-            // Using no-cors for POST as usual with Apps Script
             await fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -299,7 +357,6 @@
             });
 
             closeModal();
-            // Give Google a second to process before refreshing
             setTimeout(loadRoster, 500);
         }
 
