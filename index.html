@@ -297,16 +297,23 @@
         </section>
 
         <section id="teams" class="page space-y-4">
-            <div class="flex justify-between items-end px-1 py-4">
-                <h2 class="text-3xl font-black uppercase italic tracking-tighter leading-none">Rosters</h2>
-                <select id="team-filter" onchange="renderTeams()" class="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-green-700 outline-none">
-                    <option value="All">All Teams</option>
-                    <option value="Team A">Team A</option>
-                    <option value="Team B">Team B</option>
-                    <option value="Team C">Team C</option>
-                    <option value="Team D">Team D</option>
-                </select>
-            </div>
+            <div class="flex justify-between items-center px-1 py-4">
+    <h2 class="text-3xl font-black uppercase italic tracking-tighter leading-none">Rosters</h2>
+    
+    <!-- Filter Button Wrapper -->
+    <div class="relative flex items-center bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-xl transition-all cursor-pointer border border-gray-200">
+        <i class="fas fa-filter text-gray-500 text-[10px] mr-2"></i>
+        <select id="team-filter" onchange="renderTeams()" class="appearance-none bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-gray-900 outline-none cursor-pointer pr-4">
+            <option value="All">All Teams</option>
+            <option value="Team A">Team A</option>
+            <option value="Team B">Team B</option>
+            <option value="Team C">Team C</option>
+            <option value="Team D">Team D</option>
+        </select>
+        <!-- Custom Arrow -->
+        <i class="fas fa-chevron-down absolute right-3 text-[8px] text-gray-400 pointer-events-none"></i>
+    </div>
+</div>
             <div class="flex bg-white p-1 rounded-2xl mb-4 border border-gray-100">
                 <button onclick="setStream('Wed')" id="btn-wed-toggle" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all">Wednesdays</button>
                 <button onclick="setStream('Sat')" id="btn-sat-toggle" class="flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all">Saturdays</button>
