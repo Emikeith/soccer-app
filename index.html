@@ -733,11 +733,16 @@ function setStream(day) {
 }
 function renderLeagueTable() {
     const container = document.getElementById('league-table-container');
-    if (!container || !allStandingsData.length) return;
+    if (!container) return; // Exit only if the HTML element is missing
+
+    // If data isn't loaded yet, show a subtle loading message instead of just returning
+    if (!allStandingsData || allStandingsData.length === 0) {
+        container.innerHTML = '<p class="text-center p-8 text-gray-400 text-[10px] uppercase font-bold tracking-widest italic">Syncing standings...</p>';
+        return;
+    }
 
     const currentStreamName = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
     
-    // Filter by stream and sort by points
     const leagueData = allStandingsData
         .filter(s => (s.stream || "").toLowerCase() === currentStreamName.toLowerCase())
         .sort((a, b) => (parseInt(b.pts) || 0) - (parseInt(a.pts) || 0));
@@ -757,8 +762,8 @@ function renderLeagueTable() {
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50 text-[11px]">
-                    ${leagueData.map((team, index) => `
-                        <tr class="hover:bg-gray-50/50">
+                    ${leagueData.length > 0 ? leagueData.map((team, index) => `
+                        <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-4 py-4 font-black text-gray-300">${index + 1}</td>
                             <td class="px-4 py-4 font-bold text-gray-900">${team.team}</td>
                             <td class="px-2 py-4 text-center text-gray-600">${team.p || 0}</td>
@@ -771,7 +776,13 @@ function renderLeagueTable() {
                                 </span>
                             </td>
                         </tr>
-                    `).join('')}
+                    `).join('') : `
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-gray-300 text-[10px] font-bold uppercase italic">
+                                No ${currentStreamName} data found
+                            </td>
+                        </tr>
+                    `}
                 </tbody>
             </table>
         </div>
