@@ -575,30 +575,48 @@
     }
 
     function renderTeams() {
-        const filter = document.getElementById('team-filter').value;
-        const container = document.getElementById('teams-grid');
-        if(!container) return;
+    const filter = document.getElementById('team-filter').value;
+    const container = document.getElementById('teams-grid');
+    if(!container) return;
 
-        const teamNames = ["Team A", "Team B", "Team C", "Team D"];
-        const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
-        const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
+    const teamNames = ["Team A", "Team B", "Team C", "Team D"];
+    const teamField = currentStream === 'Wed' ? 'team wed' : 'team sat';
+    const dayMatch = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
+    
+    container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
+        // Keeping your exact logic here
+        const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName && (p.stream === dayMatch || p.stream === 'Both'));
         
-        container.innerHTML = teamNames.filter(t => filter === "All" || filter === t).map(teamName => {
-            const teamPlayers = allPlayersData.filter(p => p[teamField] === teamName && (p.stream === dayMatch || p.stream === 'Both'));
-            return `
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-50 overflow-hidden mb-4">
-                    <div class="px-6 py-4 bg-gray-50/50 border-b border-gray-50">
-                        <span class="font-black text-xs uppercase italic tracking-widest">${teamName}</span>
-                    </div>
-                    <div class="p-2 space-y-1">
-                        ${teamPlayers.length > 0 ? teamPlayers.map(p => `
-                            <div class="px-4 py-3 flex items-center justify-between">
-                                <p class="font-bold text-sm text-gray-800">${p.name || p.Name}</p>
-                            </div>`).join('') : '<p class="p-4 text-gray-400 text-xs italic">No players assigned</p>'}
-                    </div>
-                </div>`;
-        }).join('');
-    }
+        return `
+            <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-6 shadow-sm">
+                <!-- Professional Dark Header -->
+                <div class="bg-gray-900 p-4 flex justify-between items-center">
+                    <span class="text-white text-[10px] font-black uppercase tracking-widest">${teamName}</span>
+                    <span class="text-gray-500 text-[9px] font-bold uppercase">${teamPlayers.length} Players</span>
+                </div>
+                
+                <div class="divide-y divide-gray-50">
+                    ${teamPlayers.length > 0 ? teamPlayers.map(p => `
+                        <div class="p-4 flex justify-between items-center">
+                            <div class="flex flex-col">
+                                <!-- Player Name -->
+                                <span class="text-sm font-bold text-gray-900">${p.name || p.Name}</span>
+                                <!-- Player Role (Sub-text) -->
+                                <span class="text-[9px] text-gray-400 uppercase font-medium tracking-tight">
+                                    ${p.role || p.Role || 'Player'}
+                                </span>
+                            </div>
+                            <!-- Subtle Team Indicator Dot -->
+                            <div class="w-1.5 h-1.5 rounded-full ${teamName === 'Team A' ? 'bg-blue-400' : teamName === 'Team B' ? 'bg-yellow-400' : teamName === 'Team C' ? 'bg-green-400' : 'bg-red-400'}"></div>
+                        </div>`).join('') : `
+                        <div class="p-8 text-center">
+                            <p class="text-gray-300 text-[10px] font-bold uppercase italic tracking-widest">No players assigned</p>
+                        </div>
+                    `}
+                </div>
+            </div>`;
+    }).join('');
+}
 
     function setStream(stream) {
         currentStream = stream;
