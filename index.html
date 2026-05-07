@@ -658,9 +658,15 @@
             const targetDate = formatSafe(nextGame.date).toLowerCase().trim();
             document.getElementById('admin-game-label').innerText = `NEXT: ${formatSafe(nextGame.date)}`;
             
+            // Determine which team column to use based on the day of the next game
+            const gameDay = new Date(nextGame.date).getDay(); // 3 = Wed, 6 = Sat
+            const teamField = (gameDay === 3) ? 'team wed' : 'team sat';
+
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
             container.innerHTML = teamNames.map(team => {
-                const teamPlayers = players.filter(p => (p['team wed'] === team || p['team sat'] === team));
+                // FIX: Only filter players who belong to this specific team for THIS specific game day
+                const teamPlayers = players.filter(p => p[teamField] === team);
+                
                 return `
                     <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-4">
                         <div class="bg-gray-900 p-4 text-white text-[10px] font-black uppercase tracking-widest">${team}</div>
@@ -668,7 +674,6 @@
                             ${teamPlayers.map(p => {
                                 const pEmail = (p.email || p.Email || "").toLowerCase().trim();
                                 
-                                // FIX: Reverse to find LATEST entry and use strict equality for the date
                                 const rsvp = [...rsvps].reverse().find(r => {
                                     const rEmail = (r.email || r.Email || "").toLowerCase().trim();
                                     const rDate = (r.gamedate || r.gameDate || "").toLowerCase().trim();
@@ -684,6 +689,9 @@
                                         <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${color}">${status}</span>
                                     </div>`;
                             }).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
                         </div>
                     </div>`;
             }).join('');
