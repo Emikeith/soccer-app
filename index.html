@@ -91,63 +91,82 @@
         
         <section id="home" class="page active space-y-6">
             
-    <div class="relative w-full h-[85vh] overflow-hidden bg-black">
+    <div class="relative w-full h-[90vh] overflow-hidden bg-gray-900">
     
-    <div class="absolute top-8 left-6 z-30 pointer-events-none">
+    <div class="absolute top-0 left-0 w-full p-8 z-50 flex justify-between items-start pointer-events-none">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-2xl">
-                <span class="text-black font-black text-xl italic">A</span>
+            <div class="h-12 w-[4px] bg-green-500"></div>
+            <div>
+                <h2 class="text-white font-black uppercase tracking-tighter text-2xl leading-none italic">ALENA</h2>
+                <p class="text-green-500 text-[10px] font-black uppercase tracking-[0.3em]">Official Community</p>
             </div>
-            <div class="leading-none">
-                <h3 class="text-white font-black uppercase tracking-tighter text-lg italic">Alena</h3>
-                <p class="text-green-400 text-[9px] font-black uppercase tracking-[0.2em]">Community Life</p>
+        </div>
+        <div class="bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+            <span class="text-white text-[10px] font-black uppercase tracking-widest">Season 2026</span>
+        </div>
+    </div>
+
+    <div id="hero-viewport" class="relative w-full h-full">
+        
+        <div class="hero-slide absolute inset-0 transition-all duration-1000 opacity-100 z-10" id="hero-0">
+            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000" class="w-full h-full object-cover scale-110 animate-ken-burns">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            <div class="absolute bottom-24 left-8 right-8">
+                <p class="text-green-500 font-black uppercase tracking-[0.5em] text-[10px] mb-3">Matchday Atmosphere</p>
+                <h1 class="text-7xl font-black text-white italic uppercase tracking-tighter leading-[0.8] mb-6">
+                    PURE <br>INTENSITY
+                </h1>
+                <div class="h-[2px] w-12 bg-green-500 mb-6"></div>
+            </div>
+        </div>
+
+        <div class="hero-slide absolute inset-0 transition-all duration-1000 opacity-0 z-0" id="hero-1">
+            <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1000" class="w-full h-full object-cover scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            <div class="absolute bottom-24 left-8 right-8">
+                <p class="text-green-500 font-black uppercase tracking-[0.5em] text-[10px] mb-3">Global Connection</p>
+                <h1 class="text-7xl font-black text-white italic uppercase tracking-tighter leading-[0.8] mb-6">
+                    BEYOND <br>BORDERS
+                </h1>
+                <div class="h-[2px] w-12 bg-green-500 mb-6"></div>
+            </div>
+        </div>
+
+        <div class="hero-slide absolute inset-0 transition-all duration-1000 opacity-0 z-0" id="hero-2">
+            <img src="https://images.unsplash.com/photo-1529900948632-58674ba3926c?q=80&w=1000" class="w-full h-full object-cover scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            <div class="absolute bottom-24 left-8 right-8">
+                <p class="text-green-500 font-black uppercase tracking-[0.5em] text-[10px] mb-3">Post-Match Vibes</p>
+                <h1 class="text-7xl font-black text-white italic uppercase tracking-tighter leading-[0.8] mb-6">
+                    ONE <br>FAMILY
+                </h1>
+                <div class="h-[2px] w-12 bg-green-500 mb-6"></div>
             </div>
         </div>
     </div>
 
-    <div id="hero-slider" class="relative w-full h-full">
-        <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-100" id="slide-0">
-            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1000" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-            
-            <div class="absolute bottom-20 left-6 right-6 z-20">
-                <h3 class="text-green-400 font-black uppercase tracking-[0.4em] text-[10px] mb-2">Experience Alena</h3>
-                <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter leading-[0.85] mb-4">
-                    COMMUNITY <br><span class="text-transparent stroke-white" style="-webkit-text-stroke: 1px white;">LIFE</span>
-                </h2>
-                <p class="text-gray-300 text-xs font-medium max-w-[280px] leading-relaxed uppercase tracking-wider">
-                    Pure intensity. Pitch side emotions. Unite under the lights.
-                </p>
-            </div>
+    <div class="absolute bottom-10 left-8 right-8 z-50 flex gap-3">
+        <div class="flex-1 h-[3px] bg-white/20 relative overflow-hidden">
+            <div id="bar-0" class="absolute top-0 left-0 h-full bg-green-500 transition-all duration-[5000ms] ease-linear w-0"></div>
         </div>
-
-        <div class="slide absolute inset-0 transition-opacity duration-1000 opacity-0" id="slide-1">
-            <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1000" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-            
-            <div class="absolute bottom-20 left-6 right-6 z-20">
-                <h3 class="text-green-400 font-black uppercase tracking-[0.4em] text-[10px] mb-2">Global Network</h3>
-                <h2 class="text-6xl font-black text-white italic uppercase tracking-tighter leading-[0.85] mb-4">
-                    BEYOND <br><span class="text-transparent stroke-white" style="-webkit-text-stroke: 1px white;">BORDERS</span>
-                </h2>
-                <p class="text-gray-300 text-xs font-medium max-w-[280px] leading-relaxed uppercase tracking-wider">
-                    Your city. Your team. Your community.
-                </p>
-            </div>
+        <div class="flex-1 h-[3px] bg-white/20 relative overflow-hidden">
+            <div id="bar-1" class="absolute top-0 left-0 h-full bg-green-500 w-0"></div>
         </div>
-    </div>
-
-    <div class="absolute bottom-8 right-6 z-30 flex items-center gap-4">
-        <div class="flex gap-1.5 items-center">
-            <span id="current-slide-num" class="text-white font-black italic text-sm">1</span>
-            <div class="flex gap-1">
-                <div id="dot-0" class="w-8 h-1 rounded-full bg-green-500 transition-all duration-500"></div>
-                <div id="dot-1" class="w-2 h-1 rounded-full bg-white/30 transition-all duration-500"></div>
-                <div id="dot-2" class="w-2 h-1 rounded-full bg-white/30 transition-all duration-500"></div>
-            </div>
+        <div class="flex-1 h-[3px] bg-white/20 relative overflow-hidden">
+            <div id="bar-2" class="absolute top-0 left-0 h-full bg-green-500 w-0"></div>
         </div>
     </div>
 </div>
+
+<style>
+@keyframes ken-burns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+.animate-ken-burns {
+    animation: ken-burns 10s ease-out infinite alternate;
+}
+</style>
 
     <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
         <div class="flex justify-between items-center mb-6">
