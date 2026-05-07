@@ -653,18 +653,22 @@
 
             const now = new Date(); now.setHours(0,0,0,0);
             const nextGame = games.find(g => new Date(g.date) >= now);
-            if(!nextGame) return;
+            if(!nextGame) {
+                container.innerHTML = '<p class="text-center p-10 text-gray-400">No upcoming games found.</p>';
+                return;
+            }
 
             const targetDate = formatSafe(nextGame.date).toLowerCase().trim();
             document.getElementById('admin-game-label').innerText = `NEXT: ${formatSafe(nextGame.date)}`;
             
-            // Determine which team column to use based on the day of the next game
-            const gameDay = new Date(nextGame.date).getDay(); // 3 = Wed, 6 = Sat
+            // Determine day: 3 is Wednesday, anything else (6) is Saturday
+            const gameDay = new Date(nextGame.date).getDay();
             const teamField = (gameDay === 3) ? 'team wed' : 'team sat';
 
             const teamNames = ["Team A", "Team B", "Team C", "Team D"];
+            
             container.innerHTML = teamNames.map(team => {
-                // FIX: Only filter players who belong to this specific team for THIS specific game day
+                // Filter players based on the specific team column for that day
                 const teamPlayers = players.filter(p => p[teamField] === team);
                 
                 return `
@@ -674,6 +678,7 @@
                             ${teamPlayers.map(p => {
                                 const pEmail = (p.email || p.Email || "").toLowerCase().trim();
                                 
+                                // Find latest RSVP for this specific game date
                                 const rsvp = [...rsvps].reverse().find(r => {
                                     const rEmail = (r.email || r.Email || "").toLowerCase().trim();
                                     const rDate = (r.gamedate || r.gameDate || "").toLowerCase().trim();
@@ -692,10 +697,10 @@
                         </div>
                     </div>`;
             }).join('');
-                        </div>
-                    </div>`;
-            }).join('');
-        } catch(e) { console.error(e); }
+        } catch(e) { 
+            console.error("Roster Load Error:", e);
+            container.innerHTML = '<p class="text-center p-10 text-red-500">Error loading roster.</p>';
+        }
     }
 </script>
 </body>
