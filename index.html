@@ -947,5 +947,78 @@ function setStatsStream(day) {
     if (typeof renderTeams === "function") renderTeams();
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('hero-track');
+    const counter = document.getElementById('hero-counter');
+    const dotContainer = document.getElementById('hero-dots');
+    
+    // Safety check to ensure the slider exists on the current page
+    if (!track) return;
+
+    const slides = Array.from(track.children);
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+
+    // 1. Generate Navigation Dots dynamically based on the number of slides
+    slides.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.id = `hero-dot-${i}`;
+        
+        // Setting initial styles for dots
+        dot.style.height = "4px";
+        dot.style.borderRadius = "99px";
+        dot.style.transition = "all 0.6s cubic-bezier(0.23, 1, 0.32, 1)";
+        
+        if (i === 0) {
+            dot.style.width = "32px";
+            dot.style.backgroundColor = "#22c55e"; // Active Green
+        } else {
+            dot.style.width = "8px";
+            dot.style.backgroundColor = "rgba(255,255,255,0.3)"; // Inactive White
+        }
+        dotContainer.appendChild(dot);
+    });
+
+    function nextHeroSlide() {
+        // Increment Index (The % operator creates the infinite loop)
+        currentIndex = (currentIndex + 1) % totalSlides;
+
+        // Move the Track (Horizontal slide animation)
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+        // Update the Number Counter (01, 02, 03...)
+        if (counter) {
+            counter.innerText = (currentIndex + 1).toString().padStart(2, '0');
+        }
+
+        // Update the Dots UI
+        slides.forEach((_, i) => {
+            const dot = document.getElementById(`hero-dot-${i}`);
+            if (dot) {
+                if (i === currentIndex) {
+                    dot.style.width = "32px";
+                    dot.style.backgroundColor = "#22c55e";
+                } else {
+                    dot.style.width = "8px";
+                    dot.style.backgroundColor = "rgba(255,255,255,0.3)";
+                }
+            }
+        });
+    }
+
+    // Set the rotation speed (5000ms = 5 seconds)
+    let heroInterval = setInterval(nextHeroSlide, 5000);
+
+    // Optional: Pause rotation if the user leaves the tab (saves battery/CPU)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(heroInterval);
+        } else {
+            heroInterval = setInterval(nextHeroSlide, 5000);
+        }
+    });
+});
+</script>
 </body>
 </html>
