@@ -637,12 +637,20 @@
         }
     }
 
-    async function loadRoster() {
+ async function loadRoster() {
     const container = document.getElementById('roster-container');
+    const label = document.getElementById('admin-game-label');
     if (!container) return;
-    container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="p-12 text-center">
+            <i class="fas fa-circle-notch fa-spin text-green-700 text-2xl"></i>
+            <p class="text-xs text-gray-500 mt-2 font-bold uppercase tracking-widest">Syncing Roster...</p>
+        </div>`;
 
     try {
+        // 1. Fetch all data in parallel for speed
         const [gRes, pRes, rRes] = await Promise.all([
             fetch(`${SCRIPT_URL}?action=getGames`),
             fetch(`${SCRIPT_URL}?action=getPlayers`),
@@ -653,58 +661,93 @@
         const players = await pRes.json();
         const rsvps = await rRes.json();
 
-        // Find next game with better date parsing
+        // 2. Find the next upcoming game
         const now = new Date();
         now.setHours(0, 0, 0, 0);
-
-        const nextGame = games.find(g => {
-            const gDate = new Date(g.date);
-            return gDate >= now;
-        });
+        const nextGame = games.find(g => new Date(g.date) >= now);
 
         if (!nextGame) {
-            container.innerHTML = '<p class="text-center p-10 text-gray-400">No upcoming games found.</p>';
+            container.innerHTML = '<p class="text-center p-10 text-gray-400 font-bold">NO UPCOMING GAMES FOUND</p>';
+            if (label) label.innerText = "NO UPCOMING GAMES";
             return;
         }
 
-        // Display the label
-        document.getElementById('admin-game-label').innerText = `NEXT: ${nextGame.date}`;
+        // Update the UI Label
+        if (label) label.innerText = `NEXT: ${nextGame.date}`;
 
-        // Match Logic: Remove commas and spaces for a "fuzzy" match
-        const simplify = (str) => str.toString().replace(/,/g, '').replace(/\s+/g, '').toLowerCase().trim();
-        const targetMatchDate = simplify(nextGame.date);
+        // 3. Setup Normalization (The Fix for the "Pending" bug)
+        // This removes commas, spaces, and special characters to ensure a 100% match
+        const superClean = (str) => {
+            if (!str) return "";
+            return str.toString().toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+        };
+
+        const targetDateKey = superClean(nextGame.date);
         
-        const gameDay = new Date(nextGame.date).getDay();
-        const teamField = (gameDay === 3) ? 'team wed' : 'team sat';
+        // Determine which team column to look at (Wednesday vs Saturday)
+        const gameDateObj = new Date(nextGame.date);
+        const isWed = gameDateObj.getDay() === 3;
+        const teamField = isWed ? 'team wed' : 'team sat';
+        
         const teamNames = ["Team A", "Team B", "Team C", "Team D"];
 
-        container.innerHTML = teamNames.map(team => {
-            const teamPlayers = players.filter(p => p[teamField] === team);
-            return `
-                <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-4">
-                    <div class="bg-gray-900 p-4 text-white text-[10px] font-black uppercase tracking-widest">${team}</div>
-                    <div class="divide-y divide-gray-50">
-                        ${teamPlayers.map(p => {
-                            const pEmail = (p.email || "").toLowerCase().trim();
-                            const rsvp = [...rsvps].reverse().find(r => 
-                                simplify(r.gamedate || r.gameDate || "") === targetMatchDate && 
-                                (r.email || "").toLowerCase().trim() === pEmail
-                            );
+        // 4. Build the Roster HTML
+        container.innerHTML = teamNames.map(teamName => {
+            // Filter players assigned to this specific team for this specific day
+            const teamPlayers = players.filter(p => {
+                const pTeam = (p[teamField] || "").toString().trim();
+                return pTeam.toLowerCase() === teamName.toLowerCase();
+            });
 
-                            const status = rsvp ? rsvp.status : 'Pending';
-                            const color = status === 'In' ? 'bg-green-50 text-green-700' : (status === 'Out' ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-400');
-                            
-                            return `<div class="p-4 flex justify-between items-center">
-                                <span class="text-sm font-bold">${p.name}</span>
-                                <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${color}">${status}</span>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
+            return `
+            <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-6 shadow-sm">
+                <div class="bg-gray-900 p-4 flex justify-between items-center">
+                    <span class="text-white text-[10px] font-black uppercase tracking-widest">${teamName}</span>
+                    <span class="text-gray-500 text-[9px] font-bold">${teamPlayers.length} PLAYERS</span>
+                </div>
+                <div class="divide-y divide-gray-50">
+                    ${teamPlayers.length > 0 ? teamPlayers.map(p => {
+                        const pEmail = (p.email || "").toLowerCase().trim();
+                        
+                        // Find the RSVP entry by matching cleaned Date AND cleaned Email
+                        const rsvp = rsvps.find(r => {
+                            const rDateRaw = r.gamedate || r.gameDate || r.GameID || "";
+                            const rEmail = (r.email || "").toLowerCase().trim();
+                            return superClean(rDateRaw) === targetDateKey && rEmail === pEmail;
+                        });
+
+                        const status = rsvp ? (rsvp.status || "Pending") : 'Pending';
+                        
+                        // Dynamic styling based on status
+                        let statusClass = "bg-gray-100 text-gray-400";
+                        if (status === 'In') statusClass = "bg-green-100 text-green-700";
+                        if (status === 'Out') statusClass = "bg-red-100 text-red-700";
+                        
+                        return `
+                        <div class="p-4 flex justify-between items-center">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold ${status === 'Pending' ? 'text-gray-400' : 'text-gray-900'}">
+                                    ${p.name || "Unknown Player"}
+                                </span>
+                                <span class="text-[9px] text-gray-400 uppercase tracking-tighter">${p.role || "Player"}</span>
+                            </div>
+                            <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full ${statusClass}">
+                                ${status}
+                            </span>
+                        </div>`;
+                    }).join('') : `<div class="p-6 text-center text-xs text-gray-300 italic">No players assigned</div>`}
+                </div>
+            </div>`;
         }).join('');
-    } catch (e) {
-        console.error("Roster Error:", e);
-        container.innerHTML = '<p class="text-center p-10 text-red-500">Error loading data.</p>';
+
+    } catch (error) {
+        console.error("Roster Load Error:", error);
+        container.innerHTML = `
+            <div class="p-10 text-center">
+                <i class="fas fa-exclamation-triangle text-red-500 mb-2"></i>
+                <p class="text-sm text-gray-600 font-bold">FAILED TO LOAD ROSTER</p>
+                <button onclick="loadRoster()" class="mt-4 text-xs bg-gray-900 text-white px-4 py-2 rounded-full">RETRY</button>
+            </div>`;
     }
 }
 </script>
