@@ -705,31 +705,29 @@ async function loadStats() {
  * This function connects your existing Roster buttons to the logic
  */
 function setStream(day) {
-    // 1. Set the global day
+    console.log("Switching to:", day); // Check F12 Console to see if this logs
     currentStream = day;
 
-    // 2. Get your existing buttons by ID
     const wedBtn = document.getElementById('btn-wed-toggle');
     const satBtn = document.getElementById('btn-sat-toggle');
 
-    // 3. Apply styles with cursor-pointer added so it feels clickable
-    const activeClass = "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all cursor-pointer";
-    const inactiveClass = "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all cursor-pointer hover:text-gray-600";
+    const active = "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all cursor-pointer";
+    const inactive = "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all cursor-pointer";
 
+    // 1. Swap the button looks immediately
     if (wedBtn && satBtn) {
-        if (day === 'Wed') {
-            wedBtn.className = activeClass;
-            satBtn.className = inactiveClass;
-        } else {
-            // This is where Saturday becomes the "Dark" active button
-            satBtn.className = activeClass;
-            wedBtn.className = inactiveClass;
-        }
+        wedBtn.className = (day === 'Wed') ? active : inactive;
+        satBtn.className = (day === 'Sat') ? active : inactive;
     }
 
-    // 4. Update Everything (with safety checks to prevent crashes)
-    if (typeof renderTeams === "function") renderTeams();
-    if (typeof renderLeagueTable === "function") renderLeagueTable();
+    // 2. Try to render without crashing the whole function
+    try {
+        if (typeof renderTeams === "function") renderTeams();
+    } catch (e) { console.error("Teams error:", e); }
+
+    try {
+        if (typeof renderLeagueTable === "function") renderLeagueTable();
+    } catch (e) { console.error("Standings error:", e); }
 }
 function renderLeagueTable() {
     const container = document.getElementById('league-table-container');
