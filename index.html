@@ -219,48 +219,50 @@
     </div>
 </div>
             
-    <div class="px-6 py-10 bg-gray-50">
-    <div class="max-w-md mx-auto relative">
-        
-        <div class="flex items-center justify-center -space-x-4">
+    <div class="px-6 py-12">
+    <div class="max-w-md mx-auto">
+        <div class="flex flex-col gap-4">
             
             <div onclick="showPage('about')" 
-                 class="group relative cursor-pointer w-1/2 h-32 transition-transform duration-300 active:scale-95"
-                 style="clip-path: polygon(0 0, 100% 0, 85% 100%, 0 85%);">
-                
-                <div class="absolute inset-0 bg-gray-900 group-hover:bg-black transition-colors"></div>
-                
-                <div class="relative h-full flex flex-col justify-center items-center pr-4">
-                    <i class="fas fa-shield-alt text-green-500 text-xs mb-2 opacity-50 group-hover:opacity-100 transition-opacity"></i>
-                    <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">The Legacy</p>
-                    <p class="text-white font-[1000] italic text-sm uppercase tracking-tighter">OUR HISTORY</p>
+                 class="group relative cursor-pointer transform transition-all duration-300 active:scale-[0.97] active:brightness-90">
+                <div class="absolute inset-0 bg-gradient-to-b from-gray-700 to-black rounded-[1.5rem] skew-x-[-10deg] shadow-xl"></div>
+                <div class="relative bg-gray-900 rounded-[1.4rem] m-[1px] py-6 px-8 skew-x-[-10deg] overflow-hidden border-t border-white/10">
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    
+                    <div class="flex items-center justify-between skew-x-[10deg]">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-black text-green-500 uppercase tracking-[0.3em] mb-1">Authentic Gear</span>
+                            <h3 class="text-white font-[1000] italic text-lg uppercase tracking-tighter">Our History</h3>
+                        </div>
+                        <div class="bg-white/5 p-3 rounded-full border border-white/10 group-hover:bg-green-500 transition-colors">
+                            <i class="fas fa-shield-alt text-white text-xs"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div onclick="showPage('registration')" 
-                 class="group relative cursor-pointer w-1/2 h-32 transition-transform duration-300 active:scale-95"
-                 style="clip-path: polygon(15% 0, 100% 0, 100% 85%, 0 100%);">
-                
-                <div class="absolute inset-0 bg-white border-2 border-gray-900 group-hover:bg-green-50 transition-colors"></div>
-                
-                <div class="relative h-full flex flex-col justify-center items-center pl-4">
-                    <div class="absolute top-2 right-6">
-                        <span class="flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
+                 class="group relative cursor-pointer transform transition-all duration-300 active:scale-[0.97] active:brightness-95">
+                <div class="absolute inset-0 bg-gradient-to-b from-green-400 to-green-700 rounded-[1.5rem] skew-x-[-10deg] shadow-[0_15px_30px_rgba(34,197,94,0.3)]"></div>
+                <div class="relative bg-white rounded-[1.4rem] m-[2px] py-6 px-8 skew-x-[-10deg] overflow-hidden">
+                    <div class="flex items-center justify-between skew-x-[10deg]">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] mb-1">Recruitment Open</span>
+                            <h3 class="text-gray-900 font-[1000] italic text-lg uppercase tracking-tighter">Join The Squad</h3>
+                        </div>
+                        <div class="bg-gray-900 p-3 rounded-full shadow-lg group-hover:bg-green-600 transition-colors">
+                            <i class="fas fa-plus text-white text-xs"></i>
+                        </div>
                     </div>
-                    <p class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Open Now</p>
-                    <p class="text-gray-900 font-[1000] italic text-sm uppercase tracking-tighter">JOIN THE SQUAD</p>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-green-500/20"></div>
                 </div>
             </div>
 
         </div>
 
-        <div class="mt-6 flex justify-center items-center gap-4">
-            <div class="h-[1px] w-12 bg-gray-200"></div>
-            <p class="text-[8px] font-black text-gray-400 uppercase tracking-[0.4em]">Official Alena Portal</p>
-            <div class="h-[1px] w-12 bg-gray-200"></div>
+        <div class="mt-10 flex flex-col items-center gap-2">
+            <div class="w-1 h-10 bg-gradient-to-b from-green-500 to-transparent"></div>
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.5em] italic">Established Excellence</p>
         </div>
     </div>
 </div>
