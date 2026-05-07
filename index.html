@@ -1094,14 +1094,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Set the rotation speed (5000ms = 5 seconds)
-    let heroInterval = setInterval(nextHeroSlide, 5000);
+    let heroInterval = setInterval(nextHeroSlide, 6000);
 
     // Optional: Pause rotation if the user leaves the tab (saves battery/CPU)
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             clearInterval(heroInterval);
         } else {
-            heroInterval = setInterval(nextHeroSlide, 5000);
+            heroInterval = setInterval(nextHeroSlide, 6000);
         }
     });
 });
