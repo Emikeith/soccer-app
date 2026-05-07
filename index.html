@@ -703,29 +703,43 @@ async function loadStats() {
  * This function connects your existing Roster buttons to the logic
  */
 function setStream(day) {
-    console.log("Switching to:", day); // Check F12 Console to see if this logs
+    console.log("Attempting to switch to:", day);
+    
+    // 1. Update global variable
     currentStream = day;
 
+    // 2. Find buttons
     const wedBtn = document.getElementById('btn-wed-toggle');
     const satBtn = document.getElementById('btn-sat-toggle');
 
+    if (!wedBtn || !satBtn) {
+        console.error("Buttons not found in HTML! Check your IDs.");
+        return;
+    }
+
+    // 3. Define styles
     const active = "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all cursor-pointer";
     const inactive = "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all cursor-pointer";
 
-    // 1. Swap the button looks immediately
-    if (wedBtn && satBtn) {
-        wedBtn.className = (day === 'Wed') ? active : inactive;
-        satBtn.className = (day === 'Sat') ? active : inactive;
+    // 4. Swap Styles
+    if (day === 'Wed') {
+        wedBtn.className = active;
+        satBtn.className = inactive;
+    } else {
+        satBtn.className = active;
+        wedBtn.className = inactive;
     }
 
-    // 2. Try to render without crashing the whole function
+    console.log("Styles swapped. Now updating tables...");
+
+    // 5. Update UI (Wrapped in try/catch so one error doesn't break the button)
     try {
         if (typeof renderTeams === "function") renderTeams();
-    } catch (e) { console.error("Teams error:", e); }
+    } catch (e) { console.error("Error in renderTeams:", e); }
 
     try {
         if (typeof renderLeagueTable === "function") renderLeagueTable();
-    } catch (e) { console.error("Standings error:", e); }
+    } catch (e) { console.error("Error in renderLeagueTable:", e); }
 }
 function renderLeagueTable() {
     const container = document.getElementById('league-table-container');
