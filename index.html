@@ -712,23 +712,24 @@ function setStream(day) {
     const wedBtn = document.getElementById('btn-wed-toggle');
     const satBtn = document.getElementById('btn-sat-toggle');
 
-    // 3. Apply the "Active" (Dark) and "Inactive" (Gray) styles
-    const activeClass = "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all";
-    const inactiveClass = "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
+    // 3. Apply styles with cursor-pointer added so it feels clickable
+    const activeClass = "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all cursor-pointer";
+    const inactiveClass = "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all cursor-pointer hover:text-gray-600";
 
     if (wedBtn && satBtn) {
         if (day === 'Wed') {
             wedBtn.className = activeClass;
             satBtn.className = inactiveClass;
         } else {
+            // This is where Saturday becomes the "Dark" active button
             satBtn.className = activeClass;
             wedBtn.className = inactiveClass;
         }
     }
 
-    // 4. Update EVERYTHING
-    renderTeams();        // Updates the Roster list below the buttons
-    renderLeagueTable();  // Updates the Standings on the Stats page
+    // 4. Update Everything (with safety checks to prevent crashes)
+    if (typeof renderTeams === "function") renderTeams();
+    if (typeof renderLeagueTable === "function") renderLeagueTable();
 }
 function renderLeagueTable() {
     const container = document.getElementById('league-table-container');
