@@ -398,6 +398,7 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmRIGLHRV_Fzr4JTAjuu1zkMUgdKcezC563TN8JR0m-hB3lvPR5PlMwxtdMjd8nWfb/exec'; 
     let allPlayersData = []; 
     let currentStream = 'Wed';
+    let allStandingsData = []; 
     let currentSlide = 0;
     const totalSlides = 3;
 
@@ -652,9 +653,6 @@
         document.getElementById('btn-sat-toggle').className = stream === 'Sat' ? "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all" : "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
         renderTeams();
     }
-
-    // Global variable to hold standings so the stream toggle can reach it
-let allStandingsData = []; 
 
 async function loadStats() {
     const container = document.getElementById('stats-container');
