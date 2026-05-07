@@ -374,7 +374,7 @@
 
     <script>
     // --- CONFIGURATION & GLOBALS ---
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyh-Jh79x-a7WJlQ5CjzfUYnWYckQHNBdvtxkJpQqMZdPZoL3ZSKMuyqYQAemFwA7mo/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmRIGLHRV_Fzr4JTAjuu1zkMUgdKcezC563TN8JR0m-hB3lvPR5PlMwxtdMjd8nWfb/exec'; 
     let allPlayersData = []; 
     let currentStream = 'Wed';
     let currentSlide = 0;
@@ -632,25 +632,100 @@
         renderTeams();
     }
 
-    async function loadStats() {
-        const container = document.getElementById('stats-container');
-        if(!container) return;
-        container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=getStats`);
-            let stats = await res.json();
-            stats.sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
-            container.innerHTML = stats.map((s, i) => `
-                <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-50 mb-2">
-                    <div class="flex items-center gap-4">
-                        <span class="text-xs font-black text-gray-300">#${i+1}</span>
-                        <span class="font-bold">${s.name}</span>
-                    </div>
-                    <span class="bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-black">${s.goals} G</span>
-                </div>`).join('');
-        } catch(e) { console.error(e); }
-    }
+    // Global variable to hold standings so the stream toggle can reach it
+let allStandingsData = []; 
 
+async function loadStats() {
+    const container = document.getElementById('stats-container');
+    const tableContainer = document.getElementById('league-table-container'); // Container for Standings
+    
+    if(!container) return;
+    
+    // Show loading spinner in both areas
+    container.innerHTML = '<div class="p-12 text-center"><i class="fas fa-circle-notch fa-spin text-green-700"></i></div>';
+    if(tableContainer) tableContainer.innerHTML = '<div class="p-8 text-center"><i class="fas fa-circle-notch fa-spin text-gray-300"></i></div>';
+
+    try {
+        // Fetch BOTH actions in parallel
+        const [statsRes, standingsRes] = await Promise.all([
+            fetch(`${SCRIPT_URL}?action=getStats`),
+            fetch(`${SCRIPT_URL}?action=getStandings`)
+        ]);
+
+        let stats = await statsRes.json();
+        allStandingsData = await standingsRes.json();
+
+        // --- 1. RENDER LEAGUE TABLE ---
+        if(typeof renderLeagueTable === "function") {
+            renderLeagueTable();
+        }
+
+        // --- 2. RENDER GOLDEN BOOT (Your original logic) ---
+        stats.sort((a, b) => (parseInt(b.goals) || 0) - (parseInt(a.goals) || 0));
+        
+        container.innerHTML = stats.map((s, i) => `
+            <div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-50 mb-2 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <span class="text-xs font-black text-gray-300">#${i+1}</span>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-gray-900">${s.name}</span>
+                        <span class="text-[9px] text-gray-400 uppercase font-bold tracking-tight">${s.team || 'Unassigned'}</span>
+                    </div>
+                </div>
+                <span class="bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-black">${s.goals} G</span>
+            </div>`).join('');
+
+    } catch(e) { 
+        console.error("Stats Load Error:", e); 
+        container.innerHTML = '<p class="text-center p-10 text-red-500 font-bold uppercase text-xs">Error loading stats</p>';
+    }
+}
+function renderLeagueTable() {
+    const container = document.getElementById('league-table-container');
+    if (!container || !allStandingsData.length) return;
+
+    const currentStreamName = currentStream === 'Wed' ? 'Wednesday' : 'Saturday';
+    
+    // Filter by stream and sort by points
+    const leagueData = allStandingsData
+        .filter(s => (s.stream || "").toLowerCase() === currentStreamName.toLowerCase())
+        .sort((a, b) => (parseInt(b.pts) || 0) - (parseInt(a.pts) || 0));
+
+    container.innerHTML = `
+        <div class="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-900 text-white text-[9px] font-black uppercase tracking-widest">
+                        <th class="px-4 py-3">Pos</th>
+                        <th class="px-4 py-3">Team</th>
+                        <th class="px-2 py-3 text-center">P</th>
+                        <th class="px-2 py-3 text-center">W</th>
+                        <th class="px-2 py-3 text-center">D</th>
+                        <th class="px-2 py-3 text-center">L</th>
+                        <th class="px-4 py-3 text-right">Pts</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-[11px]">
+                    ${leagueData.map((team, index) => `
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="px-4 py-4 font-black text-gray-300">${index + 1}</td>
+                            <td class="px-4 py-4 font-bold text-gray-900">${team.team}</td>
+                            <td class="px-2 py-4 text-center text-gray-600">${team.p || 0}</td>
+                            <td class="px-2 py-4 text-center text-green-600 font-bold">${team.w || 0}</td>
+                            <td class="px-2 py-4 text-center text-gray-400">${team.d || 0}</td>
+                            <td class="px-2 py-4 text-center text-red-400">${team.l || 0}</td>
+                            <td class="px-4 py-4 text-right">
+                                <span class="bg-gray-100 px-2 py-1 rounded-lg font-black text-gray-900 text-xs">
+                                    ${team.pts || 0}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
     // --- ADMIN LOGIC ---
     function checkAdmin() {
         if(document.getElementById('admin-pass').value === 'ALENA2024') {
