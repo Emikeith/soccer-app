@@ -701,6 +701,35 @@ async function loadStats() {
         container.innerHTML = '<p class="text-center p-10 text-red-500 font-bold uppercase text-xs">Error loading stats</p>';
     }
 }
+/**
+ * This function connects your existing Roster buttons to the logic
+ */
+function setStream(day) {
+    // 1. Set the global day
+    currentStream = day;
+
+    // 2. Get your existing buttons by ID
+    const wedBtn = document.getElementById('btn-wed-toggle');
+    const satBtn = document.getElementById('btn-sat-toggle');
+
+    // 3. Apply the "Active" (Dark) and "Inactive" (Gray) styles
+    const activeClass = "flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-gray-900 text-white shadow-sm transition-all";
+    const inactiveClass = "flex-1 py-3 text-[10px] font-black uppercase text-gray-400 transition-all";
+
+    if (wedBtn && satBtn) {
+        if (day === 'Wed') {
+            wedBtn.className = activeClass;
+            satBtn.className = inactiveClass;
+        } else {
+            satBtn.className = activeClass;
+            wedBtn.className = inactiveClass;
+        }
+    }
+
+    // 4. Update EVERYTHING
+    renderTeams();        // Updates the Roster list below the buttons
+    renderLeagueTable();  // Updates the Standings on the Stats page
+}
 function renderLeagueTable() {
     const container = document.getElementById('league-table-container');
     if (!container || !allStandingsData.length) return;
