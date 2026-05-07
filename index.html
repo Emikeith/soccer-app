@@ -667,14 +667,22 @@
                         <div class="divide-y divide-gray-50">
                             ${teamPlayers.map(p => {
                                 const pEmail = (p.email || p.Email || "").toLowerCase().trim();
-                                const rsvp = rsvps.find(r => {
+                                
+                                // FIX: Reverse to find LATEST entry and use strict equality for the date
+                                const rsvp = [...rsvps].reverse().find(r => {
                                     const rEmail = (r.email || r.Email || "").toLowerCase().trim();
                                     const rDate = (r.gamedate || r.gameDate || "").toLowerCase().trim();
-                                    return rEmail === pEmail && (rDate.includes(targetDate) || targetDate.includes(rDate));
+                                    return rEmail === pEmail && rDate === targetDate;
                                 });
+
                                 const status = rsvp ? (rsvp.status || rsvp.Status) : 'Pending';
                                 const color = status === 'In' ? 'bg-green-50 text-green-700' : (status === 'Out' ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-400');
-                                return `<div class="p-4 flex justify-between items-center"><span class="text-sm font-bold">${p.name || p.Name}</span><span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${color}">${status}</span></div>`;
+                                
+                                return `
+                                    <div class="p-4 flex justify-between items-center">
+                                        <span class="text-sm font-bold">${p.name || p.Name}</span>
+                                        <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${color}">${status}</span>
+                                    </div>`;
                             }).join('')}
                         </div>
                     </div>`;
