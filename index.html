@@ -902,6 +902,33 @@ function renderLeagueTable() {
         container.innerHTML = '<p class="text-center p-10 text-red-500 font-bold uppercase text-xs">Sync Failed.</p>';
     }
 }
+/**
+ * This function handles the toggle buttons specifically on the STATS page
+ */
+function setStatsStream(day) {
+    console.log("Stats Toggle Clicked:", day);
+    
+    // 1. Update the global variable
+    currentStream = day;
+
+    // 2. Identify the buttons in the Standings header
+    const wedBtn = document.getElementById('stats-wed-btn');
+    const satBtn = document.getElementById('stats-sat-btn');
+
+    // 3. Define the styles
+    const active = "px-3 py-1.5 text-[9px] font-black uppercase rounded-lg bg-gray-900 text-white shadow-sm transition-all cursor-pointer";
+    const inactive = "px-3 py-1.5 text-[9px] font-black uppercase text-gray-400 transition-all cursor-pointer";
+
+    // 4. Update the look of the buttons
+    if (wedBtn && satBtn) {
+        wedBtn.className = (day === 'Wed') ? active : inactive;
+        satBtn.className = (day === 'Sat') ? active : inactive;
+    }
+
+    // 5. Refresh the Table and Roster
+    if (typeof renderLeagueTable === "function") renderLeagueTable();
+    if (typeof renderTeams === "function") renderTeams();
+}
 </script>
 </body>
 </html>
