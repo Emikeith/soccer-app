@@ -922,6 +922,18 @@ function renderLeagueTable() {
         }
     }
 
+    // --- Teams Private ACCESS LOGIC ---
+    function checkTeamsAccess() {
+    const squadPass = 'SQUAD2026'; // Password for players
+    const userInput = prompt("SQUAD ACCESS: Enter Member Code");
+
+    if (userInput === squadPass) {
+        showPage('teams'); // Opens the roster
+    } else if (userInput !== null) {
+        alert("Incorrect Member Code. Please check the WhatsApp group.");
+    }
+}
+
  async function loadRoster() {
     const container = document.getElementById('roster-container');
     const label = document.getElementById('admin-game-label');
