@@ -711,6 +711,14 @@
         if(pageId === 'teams') renderTeams(); // Uses pre-loaded data
         if(pageId === 'stats') loadStats();
         if(pageId === 'admin' && !document.getElementById('admin-dashboard').classList.contains('hidden')) loadRoster();
+        // ADD THIS: If we are on the gate OR the teams page, highlight the Teams nav button
+    if(pageId === 'squad-gate' || pageId === 'teams') {
+        const teamsBtn = document.getElementById('btn-teams');
+        if(teamsBtn) {
+            teamsBtn.classList.remove('text-gray-400');
+            teamsBtn.classList.add('text-green-700');
+        }
+    }
     }
 
     // --- DATA FORMATTING HELPERS ---
